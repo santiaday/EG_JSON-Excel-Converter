@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
@@ -35,27 +37,19 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @PostMapping("/excel/uploadFile/convert-to-single-json")
-    public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
+    public void uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("fileName")String fileName, @RequestParam("fileKey")String fileKey) {
         String fileNameWOExt = fileName.substring(0 , fileName.lastIndexOf('.'));
-        System.out.println(fileNameWOExt);
+        EG_excel_to_single_JSON(file , fileNameWOExt, fileKey);
 
-        EG_excel_to_single_JSON(file , fileNameWOExt);
-
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/downloadFile/")
-                .path(fileName)
-                .toUriString();
-
-        return new UploadFileResponse(fileName, fileDownloadUri,
-                file.getContentType(), file.getSize());
     }
 
 
     @GetMapping("/downloadFile/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
         // Load file as Resource
+        System.out.println("Downloading file...");
         Resource resource = fileStorageService.loadFileAsResource(fileName);
+
 
         // Try to determine file's content type
         String contentType = null;
@@ -76,9 +70,14 @@ public class FileController {
                 .body(resource);
     }
 
+    @GetMapping("")
+    public void testing(@PathVariable String fileName){
+        System.out.println(fileName);
+    }
+
     private int counter = 1;
     private boolean multiple = false;
-    public void EG_excel_to_multiple_JSON(MultipartFile data, String name) {
+    public void EG_excel_to_multiple_JSON(MultipartFile data, String name, String fileKey) {
         multiple = true;
         try {
             XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
@@ -94,7 +93,7 @@ public class FileController {
                     rowJsonObject.put(columnName, columnValue);
                 }
                 dataList.add(rowJsonObject);
-                EG_write_to_JSON(dataList, name);
+                EG_write_to_JSON(dataList, name, fileKey);
                 dataList = new ArrayList<>();
             }
             counter = 1;
@@ -105,8 +104,7 @@ public class FileController {
         multiple=false;
     }
 
-    @PostMapping("/excel/uploadFile/convert-to-single-json-test")
-    public String EG_excel_to_single_JSON(@RequestParam("data") MultipartFile data, String name) {
+    public String EG_excel_to_single_JSON(@RequestParam("data") MultipartFile data, String name, String fileKey) {
         System.out.println("GOT HEREEEE");
         try {
             XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
@@ -123,7 +121,7 @@ public class FileController {
                 }
                 dataList.add(rowJsonObject);
             }
-            EG_write_to_JSON(dataList,name);
+            EG_write_to_JSON(dataList,name, fileKey);
             counter = 1;
         } catch (IOException e) {
             e.printStackTrace();
@@ -132,10 +130,10 @@ public class FileController {
         return "Success";
     }
 
-    public void EG_write_to_JSON(List<JSONObject> dataList, String name) {
+    public void EG_write_to_JSON(List<JSONObject> dataList, String name, String fileKey) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("E:\\springBootUploads\\%s.json", multiple ? "converted-" + name + "-" + counter : "converted-" + name));
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s.json", multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
             counter++;

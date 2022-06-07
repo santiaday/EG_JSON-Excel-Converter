@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 @Controller
-@CrossOrigin("http://localhost:8081")
+@CrossOrigin("http://localhost:8080")
 public class FilesController {
     @Autowired
     FilesStorageService storageService;
