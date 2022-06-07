@@ -1,11 +1,15 @@
-import axios from "axios";
+import axios from 'axios';
 
-const CSRF_TOKEN = document.cookie.match(new RegExp(`XSRF-TOKEN=([^;]+)`))[1];
+class ApiService {
 
+    upload(file , config) {
 
-export default axios.create({
-  baseURL: "http://localhost:8080",
-  headers: [{
-    "Content-type": "multipart/form-data"
-  }, { "X-XSRF-TOKEN": CSRF_TOKEN }]
-});
+        return axios.post("http://localhost:8080/excel/uploadFile/convert-to-single-json", file, config);
+    }
+
+    download(fileName, config) {
+      return axios.get("http://localhost:8080/downloadFile/" + fileName, config);
+    }
+}
+
+export default new ApiService();

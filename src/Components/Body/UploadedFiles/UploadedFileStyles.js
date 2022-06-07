@@ -116,8 +116,6 @@ export default makeStyles((theme) => ({
      color: "white",
      border: "2px solid #000099",
      height: "40px",
-     minHeight: "40px",
-     maxHeight: "40px",
      minWidth: "110px",
      margin: "0 auto",
      marginTop: "1%",
