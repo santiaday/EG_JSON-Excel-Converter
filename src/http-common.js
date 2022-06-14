@@ -7,6 +7,11 @@ class ApiService {
         return axios.post("http://localhost:8080/excel/uploadFile/convert-to-single-json", file, config);
     }
 
+    uploadToMultipleJSON(file , config) {
+
+      return axios.post("http://localhost:8080/excel/uploadFile/convert-to-multiple-json", file, config);
+  }
+
     download(fileName, config) {
       return axios.get("http://localhost:8080/downloadFile/" + fileName, config);
     }

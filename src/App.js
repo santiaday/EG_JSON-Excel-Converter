@@ -27,6 +27,9 @@ function App() {
   const [targetFile, setTargetFile] = useState("");
   const [multipleFileOutput, setMultipleFileOutput] = useState("");
   const [files, setFiles] = useState([]);
+  const [percentages, setPercentages] = useState([]);
+  const [counters, setCounters] = useState([]);
+  const [firstRender , setFirstRender] = useState(1);
 
 
 
@@ -41,6 +44,8 @@ function App() {
     )
     
   }, [])
+
+  
   
   return (
     <>
@@ -48,11 +53,13 @@ function App() {
       <Header />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Body settings={settings} setSettings={setSettings} files={files} setFiles={setFiles}/>} />
+            <Route path="/" element={<Body settings={settings} setSettings={setSettings} files={files} setFiles={setFiles} percentages={percentages} setPercentages={setPercentages}
+                                      counters={counters} setCounters={setCounters}/>} />
 
             <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} originFile={originFile}
                                               setOriginFile={setOriginFile} targetFile={targetFile} setTargetFile={setTargetFile}
-                                              multipleFileOutput={multipleFileOutput} setMultipleFileOutput={setMultipleFileOutput} />} />
+                                              multipleFileOutput={multipleFileOutput} setMultipleFileOutput={setMultipleFileOutput} 
+                                              files={files} firstRender={firstRender} setFirstRender={setFirstRender}/>} />
           </Routes>
         </BrowserRouter>
       

@@ -9,7 +9,8 @@ export default makeStyles((theme) => ({
   title: {
     marginTop: "175px",
     width:"100%",
-    textAlign:"left"
+    textAlign:"left",
+    fontSize: "clamp(40px, 5vw, 60px)", 
   },  
   appBar: {
     boxShadow: 'none',
@@ -96,7 +97,7 @@ export default makeStyles((theme) => ({
     borderRadius: "25px",
     width: "80%",
     maxWidth: "982px",
-    minWidth: "300px",
+    minWidth: "290px",
     height: "25vh",
     maxHeight: "300px",
     minHeight: "300px",
@@ -111,24 +112,53 @@ export default makeStyles((theme) => ({
     whiteSpace: "nowrap"
   },
   button: {
-     background: "#000099",
-     transition: "background 0.15s ease-in-out",
-     color: "white",
-     border: "2px solid #000099",
-     height: "40px",
-     minHeight: "40px",
-     maxHeight: "40px",
-     minWidth: "110px",
-     margin: "0 auto",
-     marginTop: "1%",
-     borderRadius: "25px",
-     cursor: "pointer",
-     marginBottom: "15px",
+    background: "#000099",
+    transition: "background 0.15s ease-in-out",
+    color: "white",
+    border: "2px solid #000099",
+    margin: "5px 10px 15px 0px",
+    minWidth: "120px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
 
-     '&:hover': {
-      background: "#00006A",
-      transition: "background 0.15s ease-in-out"
-    }},
+    '&:hover': {
+     background: "#00006A",
+     border: "2px solid #00006A",
+     transition: "all 0.15s ease-in-out"
+   }},
+   altButton: {
+      background: "rgba(56, 55, 55)",
+      border: "2px solid rgba(56, 55, 55)",
+       transition: "background 0.15s ease-in-out",
+       color: "white",
+       minWidth: "120px",
+       margin: "5px 10px 15px 10px",
+       borderRadius: "10px",
+       cursor: "pointer",
+       fontWeight: "bold",
+  
+       '&:hover': {
+        background: "#000000",
+         border: "2px solid #000000",
+        transition: "all 0.15s ease-in-out"
+      }},
+      buttonGreen: {
+        background: "#57deb7",
+        border: "2px solid #57deb7",
+         transition: "background 0.15s ease-in-out",
+         color: "white",
+         minWidth: "120px",
+         margin: "5px 10px 15px 0px",
+         borderRadius: "10px",
+         cursor: "pointer",
+         fontWeight: "bold",
+    
+         '&:hover': {
+          background: "#47ba99",
+           border: "2px solid #47ba99",
+          transition: "all 0.15s ease-in-out"
+        }},
     link: {
       fontSize: "130%", 
       cursor: "pointer", 
