@@ -58,12 +58,6 @@ public class FileController {
         return EG_excel_to_multiple_JSON(file , fileNameWOExt, fileKey);
     }
 
-    @PostMapping("/json/uploadFile/convert-to-excel")
-    public void uploadJSONToExcel(@RequestParam("file") MultipartFile file, @RequestParam("fileName")String fileName, @RequestParam("fileKey")String fileKey, @RequestParam("targetFile")String targetExtension) {
-        String sourceExtension = fileName.substring(fileName.lastIndexOf('.'));
-        EG_JSON_to_Excel(file , fileName, fileKey, targetExtension, sourceExtension);
-
-    }
 
     @GetMapping("/downloadFile/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
@@ -132,8 +126,16 @@ public class FileController {
             XSSFRow header = workSheet.getRow(0);
             for(int i=1;i<workSheet.getPhysicalNumberOfRows();i++) {
                 XSSFRow row = workSheet.getRow(i);
+
                 JSONObject rowJsonObject = new JSONObject();
+                JSONObject otherJsonObject = new JSONObject();
                 for(int j=0; j<row.getPhysicalNumberOfCells();j++) {
+
+                    if(header.getCell(j) == null || row.getCell(j) == null){
+                        System.out.println("It was null");
+                        continue;
+                    }
+
                     String columnName = header.getCell(j).toString();
                     String columnValue = row.getCell(j).toString();
                     rowJsonObject.put(columnName, columnValue);
@@ -148,107 +150,10 @@ public class FileController {
         return "Success";
     }
 
-    private ObjectMapper mapper = new ObjectMapper();
-
-    public void EG_JSON_to_Excel(MultipartFile file, String fileName, String fileKey, String targetFileExtension, String sourceExtension) {
-
-        File srcFile = new File("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\" + fileName);
-        System.out.println(sourceExtension);
-
-        if(sourceExtension.equals(".json")){
-            System.out.println("they do equal");
-        }
-        try {
-            if (!sourceExtension.equals(".json")) {
-                throw new IllegalArgumentException("The source file should be .json file only");
-            } else {
-                Workbook workbook = null;
-
-                //Creating workbook object based on target file format
-                if (targetFileExtension.equals(".xls")) {
-                    workbook = new HSSFWorkbook();
-                } else if (targetFileExtension.equals(".xlsx")) {
-                    workbook = new XSSFWorkbook();
-                } else {
-                    throw new IllegalArgumentException("The target file extension should be .xls or .xlsx only");
-                }
-
-                //Reading the json file
-                ObjectNode jsonData = (ObjectNode) mapper.readTree(srcFile);
-
-                //Iterating over the each sheets
-                Iterator<String> sheetItr = jsonData.fieldNames();
-                while (sheetItr.hasNext()) {
-
-                    // create the workbook sheet
-                    String sheetName = sheetItr.next();
-                    Sheet sheet = workbook.createSheet(sheetName);
-
-                    ArrayNode sheetData = (ArrayNode) jsonData.get(sheetName);
-                    ArrayList<String> headers = new ArrayList<String>();
-
-                    //Creating cell style for header to make it bold
-                    CellStyle headerStyle = workbook.createCellStyle();
-                    Font font = workbook.createFont();
-                    font.setBold(true);
-                    headerStyle.setFont(font);
-
-                    //creating the header into the sheet
-                    Row header = sheet.createRow(0);
-                    Iterator<String> it = sheetData.get(0).fieldNames();
-                    int headerIdx = 0;
-                    while (it.hasNext()) {
-                        String headerName = it.next();
-                        headers.add(headerName);
-                        Cell cell=header.createCell(headerIdx++);
-                        cell.setCellValue(headerName);
-                        //apply the bold style to headers
-                        cell.setCellStyle(headerStyle);
-                    }
-
-                    //Iterating over the each row data and writing into the sheet
-                    for (int i = 0; i < sheetData.size(); i++) {
-                        ObjectNode rowData = (ObjectNode) sheetData.get(i);
-                        Row row = sheet.createRow(i + 1);
-                        for (int j = 0; j < headers.size(); j++) {
-                            String value = rowData.get(headers.get(j)).asText();
-                            row.createCell(j).setCellValue(value);
-                        }
-                    }
-
-                    /*
-                     * automatic adjust data in column using autoSizeColumn, autoSizeColumn should
-                     * be made after populating the data into the excel. Calling before populating
-                     * data will not have any effect.
-                     */
-                    for (int i = 0; i < headers.size(); i++) {
-                        sheet.autoSizeColumn(i);
-                    }
-
-                }
-
-                //creating a target file
-                String filename = srcFile.getName();
-                filename = filename.substring(0, filename.lastIndexOf(".")) + targetFileExtension;
-                FileWriter targetFile = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s" , filename));
-
-                // write the workbook into target file
-                FileOutputStream fos = new FileOutputStream(String.valueOf(targetFile));
-                workbook.write(fos);
-
-                //close the workbook and fos
-                workbook.close();
-                fos.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void EG_write_to_JSON(List<JSONObject> dataList, String name, String fileKey, int counter) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
