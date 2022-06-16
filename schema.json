@@ -1,0 +1,151 @@
+{
+    "key": "finance/v5/distribution-allocation",
+    "spec": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "DistributionAllocationRules",
+        "description": "This is the definition for distribution allocation rule configurations",
+        "key_spec": [
+            "rule_category",
+            "rule_category_event_type"
+        ],
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+            "key": {
+                "type": "object",
+                "properties": {
+                    "rule_category": {
+                        "type": "string",
+                        "description": ""
+                    },
+                    "rule_category_event_type": {
+                        "type": "string",
+                        "description": ""
+                    }
+                }
+            },
+            "rule_list": {
+                "type": "array",
+                "description": "",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "rule_type": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "rule_description": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "country": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "point_of_sale": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "point_of_supply": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "business_model": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "product": {
+                            "type": "string",
+                            "description": ""
+                        },
+                        "sub_product_list": {
+                            "type": "array",
+                            "description": "",
+                            "items": {
+                                "type": "string",
+                                "description": ""
+                            }
+                        },
+                        "allocation_detail_list": {
+                            "type": "array",
+                            "description": "",
+                            "items": {
+                                "type": "object",
+                                "description": "",
+                                "properties": {
+                                    "allocation_priority": {
+                                        "type": "number",
+                                        "description": ""
+                                    },
+                                    "allocation_type": {
+                                        "type": "string",
+                                        "description": ""
+                                    },
+                                    "allocation_factor": {
+                                        "type": "string",
+                                        "description": ""
+                                    }
+                                }
+                            }
+                        },
+                        "rule_line_list": {
+                            "type": "array",
+                            "description": "",
+                            "items": {
+                                "type": "object",
+                                "description": "",
+                                "properties": {
+                                    "monetary_classification_urn": {
+                                        "type": "string",
+                                        "description": ""
+                                    },
+                                    "localized_display_name": {
+                                        "type": "string",
+                                        "description": ""
+                                    },
+                                    "compensation_type": {
+                                        "type": "string",
+                                        "description": ""
+                                    },
+                                    "rule_line_priority": {
+                                        "type": "number",
+                                        "description": ""
+                                    },
+                                    "sub_product": {
+                                        "type": "string",
+                                        "description": ""
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "labels": {
+        "domain": "Finance",
+        "capability": "DistributionService"
+    },
+    "metadata": {
+        "id": "6299f7edc79da441aae365ca",
+        "type": {
+            "group": "system",
+            "version": "v1",
+            "type": "type"
+        },
+        "key_spec": [
+            "group",
+            "version",
+            "type"
+        ],
+        "revision": 4,
+        "config_id": "system/v1/type/finance/v5/distribution-allocation",
+        "references": [],
+        "created_by": "egaid:api:e7474b31-3e41-49c4-91e3-a0bc7a464376",
+        "updated_by": "egaid:api:e7474b31-3e41-49c4-91e3-a0bc7a464376",
+        "created_timestamp": "2022-06-03T12:00:45.419Z",
+        "updated_timestamp": "2022-06-08T10:00:03.115Z"
+    },
+    "status": "LIVE"
+}

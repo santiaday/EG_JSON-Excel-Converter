@@ -1,0 +1,322 @@
+////Payload for book reservation rules
+{
+    "key": "Distribution/BOOK_RESERVATION_UNDISTRIBUTED",
+    "spec": {
+        "key": {
+            "rule_category": "Distribution",
+            "rule_category_event_type": "BOOK_RESERVATION_UNDISTRIBUTED"
+        },
+        "rule_list": [
+            {
+				"rule_type": "Distribution",
+				"rule_description": "Reservation distribution for listed monetary classification",
+                "country": "US",
+                "point_of_sale": "US",
+                "point_of_supply": "US",
+                "business_model": "All",
+                "product": "Car",
+                "rule_line_list": [
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:base:base:base_rate",
+						"localized_display_name": "Base"
+                    },
+                    {
+                        "compensation_type": "Commission"
+                    },
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:tax:cost_tax:cost_tax",
+						"localized_display_name": "Tax"
+                    },
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:fee:fee:rental_fee",
+						"localized_display_name": "Fee"
+                    }
+                ]
+            },
+            {
+				"rule_type": "Distribution",
+				"rule_description": "Reservation distribution for all monetary classification",
+                "country": "All",
+                "point_of_sale": "All",
+                "point_of_supply": "All",
+                "business_model": "All",
+                "product": "Car",
+                "rule_line_list": [
+                    {
+                        
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:All:All:All",
+						"localized_display_name": "All",
+						"compensation_type":"All"
+                    }
+                ]
+            }
+        ]
+    },
+    "status": "LIVE"
+}
+
+////Payload for cancel reservation rules
+{
+    "key": "Distribution/CANCEL_RESERVATION_UNDISTRIBUTED",
+    "spec": {
+        "key": {
+            "rule_category": "Distribution",
+            "rule_category_event_type": "CANCEL_RESERVATION_UNDISTRIBUTED"
+        },
+        "rule_list": [
+            {
+				"rule_type": "Distribution",
+				"rule_description": "Reservation distribution for listed monetary classification",
+                "country": "US",
+                "point_of_sale": "US",
+                "point_of_supply": "US",
+                "business_model": "All",
+                "product": "Car",
+                "rule_line_list": [
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:base:base:base_rate",
+						"localized_display_name": "Base"
+                    },
+                    {
+                        "compensation_type": "Commission"
+                    },
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:tax:cost_tax:cost_tax",
+						"localized_display_name": "Tax"
+                    },
+                    {
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:fee:fee:rental_fee",
+						"localized_display_name": "Fee"
+                    }
+                ]
+            },
+            {
+				"rule_type": "Distribution",
+				"rule_description": "Reservation distribution for all monetary classification",
+                "country": "All",
+                "point_of_sale": "All",
+                "point_of_supply": "All",
+                "business_model": "All",
+                "product": "Car",
+                "rule_line_list": [
+                    {
+                        
+                        "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:All:All:All",
+						"localized_display_name": "All",
+						"compensation_type":"All"
+                    }
+                ]
+            }
+        ]
+    },
+    "status": "LIVE"
+}
+
+////Payload for Charge Capture rules
+{
+    "key": "Distribution/BOOK_CHARGE_CAPTURED_UNDISTRIBUTED",
+    "spec": {
+        "key": {
+            "rule_category": "Distribution",
+            "rule_category_event_type": "BOOK_CHARGE_CAPTURED_UNDISTRIBUTED"
+        },
+        "rule_list": [
+            {
+			"rule_type": "Allocation",
+		    "rule_description": "Priority based on listed monetary classification",
+            "country":"US",
+            "point_of_sale":"US",
+            "point_of_supply":"US",
+            "business_model":"All",
+            "product":"Car",
+			"allocation_detail_list":[
+                     {
+                        "allocation_priority":1,
+                        "allocation_type":"Priority",
+                        "allocation_factor":"MonetaryClassification"
+                     }
+                  ],
+            "rule_line_list":[
+			   {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:base:base:base_rate",
+				  "localized_display_name": "Base",
+                  "rule_line_priority":10
+               },
+			   {
+                  "localized_display_name": "Base",
+                  "rule_line_priority":20
+               },
+			   {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:fee:fee:rental_fee",
+				  "localized_display_name": "Fee",
+                  "rule_line_priority":30
+               },
+			   {
+                  "localized_display_name": "Fee",
+                  "rule_line_priority":40
+               },
+			   {
+                  "compensation_type":"Commission",
+                  "rule_line_priority":50
+               },
+               {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:tax:cost_tax:cost_tax",
+				  "localized_display_name": "Tax",
+                  "rule_line_priority":60
+               },
+			   {
+                  "localized_display_name": "Tax",
+                  "rule_line_priority":70
+               }
+            ]
+         },
+            {
+			"rule_type": "Allocation",
+		    "rule_description": "Prorate based on monetary classification amount weightage at order level",
+            "country":"All",
+            "point_of_sale":"All",
+            "point_of_supply":"All",
+            "business_model":"All",
+            "product":"Car",
+			"allocation_detail_list":[
+                     {
+                        "allocation_priority":1,
+                        "allocation_type":"Prorate",
+                        "allocation_factor":"MonetaryClassificationByOrder"
+                     }
+                  ],
+            "rule_line_list":[
+               {
+				  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:All:All:All",
+				  "localized_display_name": "All",
+                  "compensation_type":"All"
+               }
+            ]
+         }
+        ]
+    },
+    "status": "LIVE"
+}
+
+////Payload for Charge Settlement rules
+{
+    "key": "Distribution/BOOK_CHARGE_SETTLED_UNDISTRIBUTED",
+    "spec": {
+        "key": {
+            "rule_category": "Distribution",
+            "rule_category_event_type": "BOOK_CHARGE_SETTLED_UNDISTRIBUTED"
+        },
+        "rule_list": [
+            {
+			"rule_type": "Allocation",
+		    "rule_description": "Prorate based on reservation amount weightage at order level",
+            "country":"All",
+            "point_of_sale":"All",
+            "point_of_supply":"All",
+            "business_model":"All",
+            "product":"Car",
+			"allocation_detail_list":[
+                     {
+                        "allocation_priority":1,
+                        "allocation_type":"Prorate",
+                        "allocation_factor":"ReservationByOrder"
+                     }
+                  ],
+            "rule_line_list":[
+               {
+				  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:All:All:All",
+				  "localized_display_name": "All",
+                  "compensation_type":"All"
+               }
+            ]
+         }
+        ]
+    },
+    "status": "LIVE"
+}
+
+////Payload for chargeback rules
+{
+    "key": "Distribution/PAYMENT_CHARGEBACK_UNDISTRIBUTED",
+    "spec": {
+        "key": {
+            "rule_category": "Distribution",
+            "rule_category_event_type": "PAYMENT_CHARGEBACK_UNDISTRIBUTED"
+        },
+        "rule_list": [
+            {
+			"rule_type": "Allocation",
+		    "rule_description": "Priority based on listed monetary classification",
+            "country":"US",
+            "point_of_sale":"US",
+            "point_of_supply":"US",
+            "business_model":"All",
+            "product":"Car",
+			"allocation_detail_list":[
+                     {
+                        "allocation_priority":1,
+                        "allocation_type":"Priority",
+                        "allocation_factor":"MonetaryClassification"
+                     }
+                  ],
+            "rule_line_list":[
+               {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:base:base:base_rate",
+				  "localized_display_name": "Base",
+                  "rule_line_priority":10
+               },
+			   {
+                  "localized_display_name": "Base",
+                  "rule_line_priority":20
+               },
+			   {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:fee:fee:rental_fee",
+				  "localized_display_name": "Fee",
+                  "rule_line_priority":30
+               },
+			   {
+                  "localized_display_name": "Fee",
+                  "rule_line_priority":40
+               },
+			   {
+                  "compensation_type":"Commission",
+                  "rule_line_priority":50
+               },
+               {
+                  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:tax:cost_tax:cost_tax",
+				  "localized_display_name": "Tax",
+                  "rule_line_priority":60
+               },
+			   {
+                  "localized_display_name": "Tax",
+                  "rule_line_priority":70
+               }
+            ]
+         },
+            {
+			"rule_type": "Allocation",
+		    "rule_description": "Prorate based on monetary classification amount weightage at order level",
+            "country":"All",
+            "point_of_sale":"All",
+            "point_of_supply":"All",
+            "business_model":"All",
+            "product":"Car",
+			"allocation_detail_list":[
+                     {
+                        "allocation_priority":1,
+                        "allocation_type":"Prorate",
+                        "allocation_factor":"MonetaryClassificationByOrder"
+                     }
+                  ],
+            "rule_line_list":[
+               {
+				  "monetary_classification_urn": "urn:expediagroup:taxonomy:monetary:All:All:All",
+				  "localized_display_name": "All",
+                  "compensation_type":"All"
+               }
+            ]
+         }
+        ]
+    },
+    "status": "LIVE"
+}
