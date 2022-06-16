@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -30,10 +32,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.sql.Array;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -88,72 +88,208 @@ public class FileController {
     private boolean multiple = false;
     public int EG_excel_to_multiple_JSON(MultipartFile data, String name, String fileKey) {
         multiple = true;
-        int counter = 1;
+        List<JsonObject> dataList = new ArrayList<>();
+        int counter = 0;
+
         try {
             XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
             XSSFSheet workSheet = workBook.getSheetAt(0);
-            List<JSONObject> dataList = new ArrayList<>();
-            XSSFRow header = workSheet.getRow(0);
-            for(int i=1;i<workSheet.getPhysicalNumberOfRows();i++) {
-                XSSFRow row = workSheet.getRow(i);
-                JSONObject rowJsonObject = new JSONObject();
-                for(int j=0; j<row.getPhysicalNumberOfCells();j++) {
-                    String columnName = header.getCell(j).toString();
-                    String columnValue = row.getCell(j).toString();
-                    rowJsonObject.put(columnName, columnValue);
-                }
-                dataList.add(rowJsonObject);
-                EG_write_to_JSON(dataList, name, fileKey, counter);
-                System.out.println(counter);
-                counter++;
-                dataList = new ArrayList<>();
+            int numRows = workSheet.getPhysicalNumberOfRows();
+
+            int i = 1;
+            int j = 2;
+
+            JsonObject jsonObject = new JsonObject();
+
+            for(int k = 0; k < workBook.getNumberOfSheets(); k++){
+                System.out.println(workBook.getSheetAt(k));
             }
-            return counter;
-        } catch (IOException e) {
+
+            while(j < numRows){
+                System.out.println("Did the for loop");
+                dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
+                counter++;
+                EG_write_to_JSON(dataList, name, fileKey, counter);
+                dataList.clear();
+                i = i + 3;
+                j = j + 3;
+
+            }
+
+
+        }catch(IOException e){
             e.printStackTrace();
         }
 
 
-        return 1;
+
+
+        return counter;
     }
 
+
     public String EG_excel_to_single_JSON(@RequestParam("data") MultipartFile data, String name, String fileKey) {
+        List<JsonObject> dataList = new ArrayList<>();
+
         multiple=false;
         try {
             XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
             XSSFSheet workSheet = workBook.getSheetAt(0);
-            List<JSONObject> dataList = new ArrayList<>();
-            XSSFRow header = workSheet.getRow(0);
-            for(int i=1;i<workSheet.getPhysicalNumberOfRows();i++) {
-                XSSFRow row = workSheet.getRow(i);
+            int numRows = workSheet.getPhysicalNumberOfRows();
 
-                JSONObject rowJsonObject = new JSONObject();
-                JSONObject otherJsonObject = new JSONObject();
-                for(int j=0; j<row.getPhysicalNumberOfCells();j++) {
+            int i = 1;
+            int j = 2;
 
-                    if(header.getCell(j) == null || row.getCell(j) == null){
-                        System.out.println("It was null");
-                        continue;
-                    }
+            JsonObject jsonObject = new JsonObject();
 
-                    String columnName = header.getCell(j).toString();
-                    String columnValue = row.getCell(j).toString();
-                    rowJsonObject.put(columnName, columnValue);
-                }
-                dataList.add(rowJsonObject);
+            for(int k = 0; k < workBook.getNumberOfSheets(); k++){
+                System.out.println(workBook.getSheetAt(k));
             }
-            EG_write_to_JSON(dataList,name, fileKey, 0);
-        } catch (IOException e) {
+
+            while(j < numRows){
+                System.out.println("Did the for loop");
+                dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
+                jsonObject = new JsonObject();
+                i = i + 3;
+                j = j + 3;
+
+            }
+
+
+        }catch(IOException e){
             e.printStackTrace();
         }
+
+
+        EG_write_to_JSON(dataList, name, fileKey, 0);
 
         return "Success";
     }
 
-    public void EG_write_to_JSON(List<JSONObject> dataList, String name, String fileKey, int counter) {
+    public JsonObject write_to_json_object (MultipartFile data , int headerInt , int rowInt, JsonObject jsonObject, int sheetNum){
+
+        try {
+            XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
+            XSSFSheet workSheet = workBook.getSheetAt(sheetNum);
+            XSSFRow header = workSheet.getRow(headerInt);
+
+
+
+            for(int i=rowInt;i<workSheet.getPhysicalNumberOfRows();i++) {
+                XSSFRow row = workSheet.getRow(i);
+
+
+                if(workSheet.getRow(i) == null){
+                    break;
+                }
+
+
+
+                    if(row.getCell(0).toString().contains("////")){
+                        System.out.println("Returning object..." + jsonObject);
+                        return jsonObject;
+                    }
+
+
+                for(int j=0; j<row.getPhysicalNumberOfCells();j++) {
+
+
+                    if(header.getCell(j) == null){
+                        continue;
+                    }
+
+
+                    if(row.getCell(j).toString().contains("sheet") && !(row.getCell(j).toString().contains("Arr"))){
+                        JsonObject temp = new JsonObject();
+                        int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('t')+ 1 ));
+                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
+                        jsonObject.add(header.getCell(j).toString(), write_to_json_object(data, headerInt, rowInt, temp, sheetNumber-1));
+                        continue;
+                    }
+
+                    if(row.getCell(j).toString().contains("sheetArr")){
+                        JsonObject temp = new JsonObject();
+                        JsonArray tempDataList = new JsonArray();
+                        int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('r') + 1 , row.getCell(j).toString().length()));
+                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
+                        jsonObject.add(header.getCell(j).toString(), write_to_json_array(data, headerInt, rowInt, temp, sheetNumber-1, tempDataList));
+                        continue;
+                    }
+
+
+                    String columnName = header.getCell(j).toString();
+                    String columnValue = row.getCell(j).toString();
+                    jsonObject.addProperty(columnName, columnValue);
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+    public JsonArray write_to_json_array (MultipartFile data , int headerInt , int rowInt, JsonObject jsonObject, int sheetNum, JsonArray jsonArray){
+        try {
+            XSSFWorkbook workBook = new XSSFWorkbook(data.getInputStream());
+            XSSFSheet workSheet = workBook.getSheetAt(sheetNum);
+            XSSFRow header = workSheet.getRow(headerInt);
+            for(int i=rowInt;i<workSheet.getPhysicalNumberOfRows();i++) {
+                XSSFRow row = workSheet.getRow(i);
+                if(workSheet.getRow(i) == null){
+                    break;
+                }
+
+                if(row.getCell(0).toString().contains("////")){
+                    System.out.println("Returning object..." + jsonObject);
+                    return jsonArray;
+                }
+
+                for(int j=0; j<row.getPhysicalNumberOfCells();j++) {
+
+                    if(header.getCell(j).toString().equals("-")){
+                        jsonArray.add(jsonObject);
+                        jsonObject = new JsonObject();
+                        continue;
+                    }
+
+                    if(row.getCell(j).toString().contains("sheet") && !(row.getCell(j).toString().contains("Arr"))){
+                        JsonObject temp = new JsonObject();
+                        int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('t')+ 1 ));
+                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
+                        jsonObject.add(header.getCell(j).toString(), write_to_json_object(data, headerInt, rowInt, temp, sheetNumber-1));
+                        continue;
+                    }
+
+                    if(row.getCell(j).toString().contains("sheetArr")){
+                        JsonObject temp = new JsonObject();
+                        JsonArray tempDataList = new JsonArray();
+                        int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('r')+ 1));
+                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
+                        jsonObject.add(header.getCell(j).toString(), write_to_json_array(data, headerInt, rowInt, temp, sheetNumber-1, tempDataList));
+                        continue;
+                    }
+
+
+                    String columnName = header.getCell(j).toString();
+                    String columnValue = row.getCell(j).toString();
+
+//                    System.out.println("ARRAY HEADER VALUE: " + header.getCell(0).toString());
+//                    System.out.println("ARRAY ROW VALUE: " + row.getCell(0).toString());
+
+                    jsonObject.addProperty(columnName, columnValue);
+                }
+                jsonArray.add(jsonObject);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonArray;
+    }
+
+    public void EG_write_to_JSON(List<JsonObject> dataList, String name, String fileKey, int counter) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();

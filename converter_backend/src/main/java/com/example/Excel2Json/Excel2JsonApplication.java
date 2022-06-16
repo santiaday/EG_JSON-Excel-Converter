@@ -34,15 +34,12 @@ class Helper extends TimerTask {
 		File[] directoryListing = dir.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
-				System.out.println(child.getName());
-				System.out.println(System.currentTimeMillis());
 				long lastModified = child.lastModified();
 				long epochTime = System.currentTimeMillis();
 				if((epochTime - lastModified) > 600000){
 					Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s", child.getName()));
 					try {
 						Files.delete(path);
-						System.out.println("Old files have been purged");
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
