@@ -1,13 +1,6 @@
 package com.example.Excel2Json;
 
 import com.example.Excel2Json.property.FileStorageProperties;
-import com.github.opendevl.JFlat;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,13 +12,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 
 class Helper extends TimerTask {
@@ -67,36 +55,6 @@ public class Excel2JsonApplication {
 
 		timer.schedule(task , 1, 600000);
 
-//		String str = new String(Files.readAllBytes(Paths.get("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\bb98f6b9-aea0-4be9-81fb-15193e5cdb34converted-Book1 - Copy (2) - Copy.json")));
-//
-//		JFlat flatMe = new JFlat(str);
-//
-////get the 2D representation of JSON document
-//		List<Object[]> json2csv = flatMe.json2Sheet().getJsonAsSheet();
-//
-////write the 2D representation in csv format
-//		flatMe.headerSeparator().write2csv("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\bb98f6b9-aea0-4be9-81fb-15193e5cdb34converted-Book1 - Copy (2) - Copy.csv");
-//
-//		String csvFileAddress = "C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\bb98f6b9-aea0-4be9-81fb-15193e5cdb34converted-Book1 - Copy (2) - Copy.csv"; //csv file address
-//		String xlsxFileAddress = "C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\bb98f6b9-aea0-4be9-81fb-15193e5cdb34converted-Book1 - Copy (2) - Copy.xlsx"; //xlsx file address
-//		XSSFWorkbook workBook = new XSSFWorkbook();
-//		XSSFSheet sheet = workBook.createSheet("sheet1");
-//		String currentLine=null;
-//		int RowNum=0;
-//		BufferedReader br = new BufferedReader(new FileReader(csvFileAddress));
-//		while ((currentLine = br.readLine()) != null) {
-//			String strArr[] = currentLine.split(",");
-//			RowNum++;
-//			XSSFRow currentRow=sheet.createRow(RowNum);
-//			for(int i=0;i<strArr.length;i++){
-//				currentRow.createCell(i).setCellValue(strArr[i]);
-//			}
-//		}
-//
-//		FileOutputStream fileOutputStream =  new FileOutputStream(xlsxFileAddress);
-//		workBook.write(fileOutputStream);
-//		fileOutputStream.close();
-//		System.out.println("Done");
 	}
 
 
