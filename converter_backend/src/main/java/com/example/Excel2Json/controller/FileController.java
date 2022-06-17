@@ -2,17 +2,10 @@ package com.example.Excel2Json.controller;
 
 import com.example.Excel2Json.payload.UploadFileResponse;
 import com.example.Excel2Json.service.FileStorageService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.groupdocs.conversion.internal.c.a.pd.Operator;
-import org.apache.coyote.Response;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import com.google.gson.JsonParser;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -116,6 +109,20 @@ public class FileController {
                 .body(resource);
     }
 
+    @PostMapping("/rules/createRule")
+    public void createRule(@RequestParam("jsonRule") String newRule) {
+
+        System.out.println(newRule);
+
+        JsonObject newRuleObject = JsonParser.parseString(newRule).getAsJsonObject();
+
+        update_rules_storage(newRuleObject);
+
+
+
+
+    }
+
     private boolean multiple = false;
 
     public int EG_excel_to_multiple_JSON(MultipartFile data, String name, String fileKey) {
@@ -204,21 +211,28 @@ public class FileController {
                 String ruleNo = (jsonObject.get("rId").toString().substring(1, jsonObject.get("rId").toString().length() - 1));
                 int jIndex = 0;
 
-                Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
+                Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
                 boolean exists = Files.exists(path);
                 if (!exists) {
 
-                    FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
-                    file.write(gson.toJson(jsonObject));
+                    JsonObject tempObj = new JsonObject();
+                    tempObj = jsonObject;
+                    tempObj.remove("rId");
+                    System.out.println("Going here");
+                    FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
+                    file.write(gson.toJson(tempObj));
                     file.close();
-
                 } else {
                     String content = new String(Files.readAllBytes(path));
 
                     if (!jsonObject.toString().equals(content)) {
                         System.out.println("They are not equal!");
-                        FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
-                        file.write(gson.toJson(jsonObject));
+                        JsonObject temp = new JsonObject();
+                        temp = jsonObject;
+                        temp.remove("rId");
+                        System.out.println("Going here");
+                        FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
+                        file.write(gson.toJson(temp));
                         file.close();
                     } else {
                         System.out.println("They are equal");
@@ -236,7 +250,7 @@ public class FileController {
     @GetMapping("/rules/countRules")
     public int countRules(){
 
-        File dir = new File("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\rulesStorage");
+        File dir = new File("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
         File[] directoryListing = dir.listFiles();
 
         int ruleCount = 0;
@@ -366,7 +380,7 @@ public class FileController {
     public void EG_write_to_JSON(List<JsonObject> dataList, String name, String fileKey, int counter) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
@@ -385,7 +399,7 @@ public class FileController {
         try {
 
 
-            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();

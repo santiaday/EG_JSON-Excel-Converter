@@ -72,14 +72,11 @@ public class FileStorageService {
 
     public Resource loadRuleAsResource(String fileName) {
         try {
-            Path filePath = Paths.get("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\rulesStorage\\" + fileName);
+            Path filePath = Paths.get("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\" + fileName);
             Resource resource = new UrlResource(filePath.toUri());
-            System.out.println(resource);
             if(resource.exists()) {
-                System.out.println("File found");
                 return resource;
             } else {
-                System.out.println("File not found");
                 throw new MyFileNotFoundException("File not found " + fileName);
             }
         } catch (MalformedURLException ex) {
