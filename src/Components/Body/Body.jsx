@@ -65,9 +65,6 @@ const Body = ({
       setAllFilesConverted(1);
     }
 
-    console.log(percentages);
-    console.log(counters);
-    console.log(files);
   }, [percentages]);
 
   useEffect(() => {
@@ -106,7 +103,6 @@ const Body = ({
         for (let i = 0; i < tempPercents.length; i++) {
           if (tempPercents[i].file === file.key) {
             tempPercents.splice(i, 1);
-            console.log("removing percent file");
             break;
           }
         }
@@ -114,7 +110,6 @@ const Body = ({
         for (let i = 0; i < tempCounters.length; i++) {
           if (tempCounters[i].file === file.key) {
             tempCounters.splice(i, 1);
-            console.log("removing counter file");
             break;
           }
         }
@@ -171,7 +166,6 @@ const Body = ({
   }
 
   const handleRemoveFile = (fileKey) => () => {
-    console.log("file being removed");
     let tempFiles = [...files];
 
     for (let i = 0; i < tempFiles.length; i++) {
@@ -303,7 +297,7 @@ const Body = ({
           setPercentages(tempPercents);
 
           let tempCounters = [...counters];
-          tempCounters[countersIndex].numRows = res.data - 1;
+          tempCounters[countersIndex].numRows = res.data;
           setCounters(tempCounters);
         });
       }
@@ -398,8 +392,10 @@ const Body = ({
             setPercentages(tempPercents);
 
             let tempCounters = [...counters];
-            tempCounters[countersIndex].numRows = res.data - 1;
+            tempCounters[countersIndex].numRows = res.data;
             setCounters(tempCounters);
+
+
           });
         }
       });
@@ -467,8 +463,11 @@ const Body = ({
       });
 
       var zip = new JSZip();
+      
 
       for (let i = 1; i <= counters[countersIndex].numRows; i++) {
+        
+
         ApiService.download(
           file.key +
             "converted-" +

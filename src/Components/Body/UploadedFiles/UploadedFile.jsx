@@ -19,7 +19,6 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
       counter++;
     })
  
-    console.log(percentages);
 
     const [windowDimenion, detectHW] = useState({
       winWidth: window.innerWidth,
@@ -33,9 +32,10 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
       })
     }
   
+    
     useEffect(() => {
       window.addEventListener('resize', detectSize)
-      console.log(windowDimenion.winWidth)
+
   
       return () => {
         window.removeEventListener('resize', detectSize)

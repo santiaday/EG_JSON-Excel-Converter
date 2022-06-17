@@ -5,6 +5,7 @@ import Header from './Components/Header/Header';
 import { createTheme, ThemeProvider } from '@material-ui/core'
 import Body from './Components/Body/Body';
 import Settings from './Components/Settings/Settings';
+import Generator from './Components/Generator/Generator';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 
 const theme = createTheme({
@@ -50,8 +51,8 @@ function App() {
   return (
     <>
     <ThemeProvider theme={theme}>
-      <Header />
         <BrowserRouter>
+        <Header />
           <Routes>
             <Route path="/" element={<Body settings={settings} setSettings={setSettings} files={files} setFiles={setFiles} percentages={percentages} setPercentages={setPercentages}
                                       counters={counters} setCounters={setCounters}/>} />
@@ -60,6 +61,7 @@ function App() {
                                               setOriginFile={setOriginFile} targetFile={targetFile} setTargetFile={setTargetFile}
                                               multipleFileOutput={multipleFileOutput} setMultipleFileOutput={setMultipleFileOutput} 
                                               files={files} firstRender={firstRender} setFirstRender={setFirstRender}/>} />
+            <Route path="/generator" element={<Generator/>} />
           </Routes>
         </BrowserRouter>
       
