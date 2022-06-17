@@ -40,10 +40,10 @@ const Header = () => {
         <Typography inline style={{display: "inline"}}>
 
           {page == 1 ? <><span className={classes.headerLinks} style={{textDecoration: "underline 2px", textUnderlineOffset: "5px",}} onClick={handleNavigateFileConverter}>File Converter</span>
-          <span className={classes.headerLinks} onClick={handleNavigateRuleGenerator}>Custom Rule Generator</span></>
+          <span className={classes.headerLinks} onClick={handleNavigateRuleGenerator}>Rule Manager</span></>
           
             : <><span className={classes.headerLinks} onClick={handleNavigateFileConverter}>File Converter</span>
-          <span className={classes.headerLinks} style={{textDecoration: "underline 2px", textUnderlineOffset: "5px",}} onClick={handleNavigateRuleGenerator}>Custom Rule Generator</span></>}
+          <span className={classes.headerLinks} style={{textDecoration: "underline 2px", textUnderlineOffset: "5px",}} onClick={handleNavigateRuleGenerator}>Rule Manager</span></>}
 
         </Typography>
 
