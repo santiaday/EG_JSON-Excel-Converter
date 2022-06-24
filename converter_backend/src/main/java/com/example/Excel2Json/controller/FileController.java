@@ -46,6 +46,12 @@ public class FileController {
     @PostMapping("/excel/uploadFile/convert-to-single-json")
     public void uploadFileToExcel(@RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName, @RequestParam("fileKey") String fileKey) {
         String fileNameWOExt = fileName.substring(0, fileName.lastIndexOf('.'));
+
+        try {
+            System.out.println(file.getBytes());
+        }catch(IOException e) {
+
+        }
         EG_excel_to_single_JSON(file, fileNameWOExt, fileKey);
 
     }
@@ -110,13 +116,18 @@ public class FileController {
     }
 
     @PostMapping("/rules/createRule")
-    public void createRule(@RequestParam("jsonRule") String newRule) {
+    public void createRule(@RequestParam("rule") MultipartFile jsonRule , @RequestParam("ruleName") String ruleName) {
+        try {
+            String content = new String(jsonRule.getBytes());
+            System.out.println(content);
+            JsonObject newRuleObject = JsonParser.parseString(content).getAsJsonObject();
 
-        System.out.println(newRule);
+            update_rules_storage(newRuleObject, ruleName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        JsonObject newRuleObject = JsonParser.parseString(newRule).getAsJsonObject();
 
-        update_rules_storage(newRuleObject);
 
 
 
@@ -140,15 +151,13 @@ public class FileController {
 
             JsonObject jsonObject = new JsonObject();
 
-            for (int k = 0; k < workBook.getNumberOfSheets(); k++) {
-                System.out.println(workBook.getSheetAt(k));
-            }
 
             while (j < numRows) {
                 dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
                 counter++;
+                update_rules_storage(dataList.get(0), dataList.get(0).get("key").toString());
+                dataList.get(0).remove("rId");
                 EG_write_rule_to_JSON(dataList, name, fileKey, counter);
-                update_rules_storage(dataList.get(0));
                 dataList.clear();
                 i = i + 3;
                 j = j + 3;
@@ -182,7 +191,8 @@ public class FileController {
 
             while (j < numRows) {
                 dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
-                update_rules_storage(dataList.get(p));
+                update_rules_storage(dataList.get(p) , dataList.get(p).get("key").toString());
+                dataList.get(0).remove("rId");
                 jsonObject = new JsonObject();
                 i = i + 3;
                 j = j + 3;
@@ -201,37 +211,39 @@ public class FileController {
         return "Success";
     }
 
-    private void update_rules_storage(JsonObject jsonObject) {
+    private void update_rules_storage(JsonObject jsonObject, String ruleName) {
         Gson gson = new Gson();
+
+        if(ruleName.contains("\"")){
+            ruleName = ruleName.substring(1 , ruleName.length()-1);
+            System.out.println(ruleName);
+        }
 
         try {
 
             if(jsonObject.toString() != null) {
 
-                String ruleNo = (jsonObject.get("rId").toString().substring(1, jsonObject.get("rId").toString().length() - 1));
                 int jIndex = 0;
 
-                Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
+                Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                 boolean exists = Files.exists(path);
                 if (!exists) {
 
-                    JsonObject tempObj = new JsonObject();
-                    tempObj = jsonObject;
-                    tempObj.remove("rId");
-                    System.out.println("Going here");
-                    FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
-                    file.write(gson.toJson(tempObj));
+                    System.out.println("Going herewwwwwwwwwwwwwwwwwwwwwwwwwww");
+
+                    FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
+                    System.out.println("i got here");
+                    file.write(gson.toJson(jsonObject));
                     file.close();
                 } else {
                     String content = new String(Files.readAllBytes(path));
-
-                    if (!jsonObject.toString().equals(content)) {
-                        System.out.println("They are not equal!");
+                    System.out.println("Going here");
+                    if (!(jsonObject.toString().equals(content))) {
+                        System.out.println(jsonObject.toString());
+                        System.out.println(content);
                         JsonObject temp = new JsonObject();
                         temp = jsonObject;
-                        temp.remove("rId");
-                        System.out.println("Going here");
-                        FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", "rule_" + ruleNo));
+                        FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                         file.write(gson.toJson(temp));
                         file.close();
                     } else {
@@ -250,7 +262,7 @@ public class FileController {
     @GetMapping("/rules/countRules")
     public int countRules(){
 
-        File dir = new File("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
+        File dir = new File("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
         File[] directoryListing = dir.listFiles();
 
         int ruleCount = 0;
@@ -295,7 +307,6 @@ public class FileController {
                     if (row.getCell(j).toString().contains("sheet") && !(row.getCell(j).toString().contains("Arr"))) {
                         JsonObject temp = new JsonObject();
                         int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('t') + 1));
-                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
                         jsonObject.add(header.getCell(j).toString(), write_to_json_object(data, headerInt, rowInt, temp, sheetNumber - 1));
                         continue;
                     }
@@ -304,7 +315,6 @@ public class FileController {
                         JsonObject temp = new JsonObject();
                         JsonArray tempDataList = new JsonArray();
                         int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('r') + 1, row.getCell(j).toString().length()));
-                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
                         jsonObject.add(header.getCell(j).toString(), write_to_json_array(data, headerInt, rowInt, temp, sheetNumber - 1, tempDataList));
                         continue;
                     }
@@ -348,7 +358,6 @@ public class FileController {
                     if (row.getCell(j).toString().contains("sheet") && !(row.getCell(j).toString().contains("Arr"))) {
                         JsonObject temp = new JsonObject();
                         int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('t') + 1));
-                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
                         jsonObject.add(header.getCell(j).toString(), write_to_json_object(data, headerInt, rowInt, temp, sheetNumber - 1));
                         continue;
                     }
@@ -357,7 +366,6 @@ public class FileController {
                         JsonObject temp = new JsonObject();
                         JsonArray tempDataList = new JsonArray();
                         int sheetNumber = Integer.parseInt(row.getCell(j).toString().substring(row.getCell(j).toString().lastIndexOf('r') + 1));
-                        System.out.println("THIS IS THE SHEET NUMBER: " + sheetNumber);
                         jsonObject.add(header.getCell(j).toString(), write_to_json_array(data, headerInt, rowInt, temp, sheetNumber - 1, tempDataList));
                         continue;
                     }
@@ -380,7 +388,7 @@ public class FileController {
     public void EG_write_to_JSON(List<JsonObject> dataList, String name, String fileKey, int counter) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
@@ -399,7 +407,7 @@ public class FileController {
         try {
 
 
-            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();

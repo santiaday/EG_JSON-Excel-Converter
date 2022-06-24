@@ -18,14 +18,14 @@ import java.util.TimerTask;
 
 class Helper extends TimerTask {
 	public void run() {
-		File dir = new File("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads");
+		File dir = new File("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads");
 		File[] directoryListing = dir.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
 				long lastModified = child.lastModified();
 				long epochTime = System.currentTimeMillis();
 				if((epochTime - lastModified) > 600000){
-					Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_excel_JSON_converter\\converter_backend\\springBootUploads\\%s", child.getName()));
+					Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s", child.getName()));
 					try {
 						Files.delete(path);
 					} catch (IOException e) {
@@ -34,7 +34,7 @@ class Helper extends TimerTask {
 				}
 			}
 		} else {
-
+		System.out.println("Dir does not exist");
 		}
 	}
 }
