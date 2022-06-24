@@ -6,6 +6,7 @@ import { createTheme, ThemeProvider } from '@material-ui/core'
 import Body from './Components/Body/Body';
 import Settings from './Components/Settings/Settings';
 import Generator from './Components/Generator/Generator';
+import NewRulePage from './Components/Generator/NewRulePage/NewRulePage'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 
 const theme = createTheme({
@@ -62,6 +63,7 @@ function App() {
                                               multipleFileOutput={multipleFileOutput} setMultipleFileOutput={setMultipleFileOutput} 
                                               files={files} firstRender={firstRender} setFirstRender={setFirstRender}/>} />
             <Route path="/generator" element={<Generator/>} />
+            <Route path="/generator/generate-rule" element={<NewRulePage />} />
           </Routes>
         </BrowserRouter>
       

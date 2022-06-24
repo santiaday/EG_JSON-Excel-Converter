@@ -17,6 +17,8 @@ const Generator = ({
   const [ruleCount, setRuleCount] = useState([]);
   const [rulesLoaded , setRulesLoaded] = useState(false);
 
+  const navigate = useNavigate();
+
   
 
   useEffect(() => {
@@ -60,19 +62,23 @@ const Generator = ({
 
   console.log(rules);
 
+  const handleNavigateToGenerator = () => {
+    navigate("/generator/generate-rule")
+  }
+
   return (
     <Container style={{ width: "90vw", maxWidth: "85vw" }}>
       <div className={classes.toolbar} />
       <Typography inline className={classes.title} variant="h2">
         Rule Manager 
       </Typography>
-      <Typography style={{fontSize: "30px"}} inline><Button className={classes.button}><div style={{ transform: "translateY(2px)" }}>Create New Rule</div></Button></Typography>
+      <Typography style={{fontSize: "30px"}} inline><Button className={classes.button} onClick={handleNavigateToGenerator}><div style={{ transform: "translateY(2px)" }}>Create New Rule</div></Button></Typography>
       <br />
       <br />
 
      { rulesLoaded ? 
      <>
-      {rules.sort((a , b) => (a.rId > b.rId) ? 1 : -1).map((rule) => (
+      {rules.map((rule) => (
         <RuleObject rule={rule} />
       ))}
       </>

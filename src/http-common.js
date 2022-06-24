@@ -23,6 +23,10 @@ class ApiService {
     countRules(){
       return axios.get("http://localhost:8080/rules/countRules");
     }
+
+    createRule(rule, ruleName){
+      return axios.post("http://localhost:8080/rules/createRule", rule, ruleName);
+    }
 }
 
 export default new ApiService();

@@ -24,9 +24,9 @@ const Header = () => {
   }
 
   useEffect(() => {
-    if((window.location.pathname) === "/"){
+    if((window.location.pathname) === "/" || window.location.pathname === "/settings"){
       setPage(1)
-    }else if((window.location.pathname) === "/generator"){
+    }else if((window.location.pathname) === "/generator" || (window.location.pathname) === "/generator/generate-rule"){
       setPage(2)
     }
   })
@@ -35,7 +35,7 @@ const Header = () => {
     <AppBar style={{ height: '164px'}} className={classes.appBar} color="#000099" >
 
         <Typography inline style={{maxHeight: "130px"}}>
-            <img src={'expedia-group-logo-white.svg'} alt="EG_Logo_White" className={classes.logo}/>
+            <img src={'/expedia-group-logo-white.svg'} alt="EG_Logo_White" className={classes.logo}/>
         </Typography>
         <Typography inline style={{display: "inline"}}>
 
