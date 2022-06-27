@@ -44,7 +44,7 @@ public class FileController {
     public FileStorageService fileStorageService;
 
     @PostMapping("/excel/uploadFile/convert-to-single-json")
-    public void uploadFileToExcel(@RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName, @RequestParam("fileKey") String fileKey) {
+    public void uploadFileToExcel(@RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName, @RequestParam("fileKey") String fileKey, @RequestParam("updateStorage") boolean updateStorage) {
         String fileNameWOExt = fileName.substring(0, fileName.lastIndexOf('.'));
 
         try {
@@ -52,14 +52,27 @@ public class FileController {
         }catch(IOException e) {
 
         }
-        EG_excel_to_single_JSON(file, fileNameWOExt, fileKey);
+
+        if(updateStorage == true){
+            EG_excel_to_single_JSON(file, fileNameWOExt, fileKey, true);
+        }else if(updateStorage == false){
+            EG_excel_to_single_JSON(file, fileNameWOExt, fileKey, false);
+        }
+
 
     }
 
     @PostMapping("/excel/uploadFile/convert-to-multiple-json")
-    public int uploadFileToMultipleJSON(@RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName, @RequestParam("fileKey") String fileKey) {
+    public int uploadFileToMultipleJSON(@RequestParam("file") MultipartFile file, @RequestParam("fileName") String fileName, @RequestParam("fileKey") String fileKey, @RequestParam("updateStorage") boolean updateStorage) {
         String fileNameWOExt = fileName.substring(0, fileName.lastIndexOf('.'));
-        return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey);
+
+        if(updateStorage == true){
+           return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey, true);
+        }else if(updateStorage == false){
+            return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey, false);
+        }
+
+        return -1;
     }
 
 
@@ -133,7 +146,7 @@ public class FileController {
 
     private boolean multiple = false;
 
-    public int EG_excel_to_multiple_JSON(MultipartFile data, String name, String fileKey) {
+    public int EG_excel_to_multiple_JSON(MultipartFile data, String name, String fileKey, boolean updateStorage) {
         multiple = true;
         List<JsonObject> dataList = new ArrayList<>();
         int counter = 0;
@@ -153,7 +166,13 @@ public class FileController {
                 System.out.println(jsonObject);
                 dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
                 counter++;
-                update_rules_storage(dataList.get(0), dataList.get(0).keySet().toArray()[0].toString(), false);
+
+                if(updateStorage){
+                    update_rules_storage(dataList.get(0), dataList.get(0).keySet().toArray()[0].toString(), false);
+                }
+
+
+
                 EG_write_rule_to_JSON(dataList, name, fileKey, counter);
                 dataList.clear();
                 jsonObject = new JsonObject();
@@ -173,7 +192,7 @@ public class FileController {
     }
 
 
-    public String EG_excel_to_single_JSON(@RequestParam("data") MultipartFile data, String name, String fileKey) {
+    public String EG_excel_to_single_JSON(@RequestParam("data") MultipartFile data, String name, String fileKey, boolean updateStorage) {
         List<JsonObject> dataList = new ArrayList<>();
         List<JsonObject> tempDataList = new ArrayList<>();
 
@@ -193,7 +212,10 @@ public class FileController {
                 dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
                 tempDataList.add(write_to_json_object(data, i, j, tempJsonObject, 0));
 
-                update_rules_storage(tempJsonObject , tempDataList.get(0).keySet().toArray()[0].toString(), false);
+                if(updateStorage){
+                    update_rules_storage(tempJsonObject , tempDataList.get(0).keySet().toArray()[0].toString(), false);
+                }
+
                 tempJsonObject = new JsonObject();
                 tempDataList.clear();
 
@@ -331,7 +353,11 @@ public class FileController {
 
                     String columnName = header.getCell(j).toString();
                     String columnValue = row.getCell(j).toString();
-                    jsonObject.addProperty(columnName, columnValue);
+
+                    if(columnValue != ""){
+                        jsonObject.addProperty(columnName, columnValue);
+                    }
+
                 }
 
             }
@@ -358,8 +384,9 @@ public class FileController {
 
                 for (int j = 0; j < row.getPhysicalNumberOfCells(); j++) {
 
-                    if (header.getCell(j).toString().equals("-")) {
+                    if (header.getCell(j).toString().contains("---")) {
                         jsonArray.add(jsonObject);
+                        System.out.println("NUMBER 1: " + jsonObject);
                         jsonObject = new JsonObject();
                         continue;
                     }
@@ -384,7 +411,9 @@ public class FileController {
                     String columnValue = row.getCell(j).toString();
 
 
-                    jsonObject.addProperty(columnName, columnValue);
+                    if(columnValue != ""){
+                        jsonObject.addProperty(columnName, columnValue);
+                    }
                 }
                 jsonArray.add(jsonObject);
             }
