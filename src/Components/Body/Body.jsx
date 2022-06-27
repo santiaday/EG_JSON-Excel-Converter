@@ -497,7 +497,13 @@ const Body = ({
             );
           })
           .then(() => {
-            if (i == counters[countersIndex].numRows) {
+            var entries = 0;
+            zip.forEach((function (relativePath, file){
+              console.log("iterating over", relativePath);
+              entries++
+          }));
+
+            if (entries == counters[countersIndex].numRows) {
               zip.generateAsync({ type: "blob" }).then(function(content) {
                 saveAs(content, "converted.zip");
               });
@@ -618,6 +624,7 @@ const Body = ({
             })
             .then(() => {
               if (fileCounter == totalFiles) {
+                console.log(fileCounter + "             " + totalFiles)
                 zip.generateAsync({ type: "blob" }).then(function(content) {
                   saveAs(content, "converted.zip");
                 });

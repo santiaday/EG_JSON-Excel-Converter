@@ -3,7 +3,7 @@ import useStyles from "./newRulePageStyles";
 import { Container, Typography, Button, TextField } from "@material-ui/core";
 import { FilePicker } from "react-file-picker";
 import Dropzone, { useDropzone } from "react-dropzone";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import ApiService from "../../../http-common";
 import RuleObject from "../RuleObject/RuleObject";
 import { IoArrowDownOutline } from "react-icons/io5";
@@ -12,11 +12,17 @@ import cloneDeep from "lodash/cloneDeep";
 import "./newRulePageStyles.css";
 import RuleLineListComponent from "./FormComponents/RuleLineListComponent.jsx";
 import RuleListComponent from "./FormComponents/RuleListComponent";
+import RuleUpdateConfirmationPopup from "./RuleUpdateConfirmation/RuleUpdateConfirmationPopup";
 
 const Generator = ({}) => {
+
+  const location = useLocation();
+  let ruleNames = location.state.ruleNames
+  let rules = location.state.rules
   const classes = useStyles();
   const [titleEntered, setTitleEntered] = useState(false);
   const [ruleTitle, setRuleTitle] = useState("title");
+  const [ruleUpdatePopup , setRuleUpdatePopup] = useState(0);
   const [listCounters, setRuleListCounters] = useState({
     rule_list: 0,
     rule_line_list: [
@@ -1009,32 +1015,39 @@ const Generator = ({}) => {
   }, [newRule, listCounters, signShown]);
 
   const handleGenerateRuleJSON = () => {
-    console.log(JSON.stringify(clean(newRule)));
+    
+
+      if(ruleNames.indexOf(ruleTitle + ".json") > -1){
+        setRuleUpdatePopup(1)
+      }
+
+      const url = window.URL.createObjectURL(
+        new Blob([JSON.stringify(clean(newRule))])
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        ruleTitle + ".json"
+      ); 
+      document.body.appendChild(link);
+      link.click();
+  
+      const formData = new FormData();
+      const rule = new Blob([JSON.stringify(clean(newRule))]);
+  
+            formData.append("rule", rule);
+            formData.append("ruleName", ruleTitle);
+  
+            ApiService.createRule(formData, {
+              headers: {
+                "content-type": "multipart/form-data",
+              },
+
+    })
 
 
-    const url = window.URL.createObjectURL(
-      new Blob([JSON.stringify(clean(newRule))])
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      ruleTitle + ".json"
-    ); 
-    document.body.appendChild(link);
-    link.click();
-
-    const formData = new FormData();
-    const rule = new Blob([JSON.stringify(clean(newRule))]);
-
-          formData.append("rule", rule);
-          formData.append("ruleName", ruleTitle);
-
-          ApiService.createRule(formData, {
-            headers: {
-              "content-type": "multipart/form-data",
-            },
-          })
+    
 
 
   };
@@ -1074,6 +1087,7 @@ const Generator = ({}) => {
           variant="outlined"
           size="small"
           style={{ transform: "translateY(-3px)" }}
+          disabled={titleEntered ? true : false}
         />
         {" {"}
       </Typography>
@@ -1231,6 +1245,8 @@ const Generator = ({}) => {
               <div style={{ transform: "translateY(2px)" }}>Generate</div>
             </Button>
           </Typography>
+
+          {ruleUpdatePopup == 1 ? <RuleUpdateConfirmationPopup rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)}/> : <></>}
         </>
       ) : (
         <></>

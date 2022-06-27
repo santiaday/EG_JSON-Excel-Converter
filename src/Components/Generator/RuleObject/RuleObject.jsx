@@ -28,9 +28,9 @@ const RuleObject = ({ rule }) => {
     <div style={{marginBottom: "25px"}}>
 
     {!ruleExpanded ? 
-    <Typography  onClick={expandRule} variant="h5" style={{userSelect: "none" , cursor: "pointer", width: "800px", fontWeight: "600"}}>Rule - {rule.key} <MdOutlineExpandMore style={{width: "20px", transform: "translateY(7px)", marginLeft: "10px"}} className={classes.arrowDown}/></Typography> : 
+    <Typography  onClick={expandRule} variant="h5" style={{userSelect: "none" , cursor: "pointer", width: "800px", fontWeight: "600"}}>Rule - {Object.keys(rule)[0]} <MdOutlineExpandMore style={{width: "20px", transform: "translateY(7px)", marginLeft: "10px"}} className={classes.arrowDown}/></Typography> : 
     <>
-    <Typography  onClick={expandRule} variant="h5" style={{userSelect: "none" , cursor: "pointer", width: "800px", fontWeight: "600"}}>Rule - {rule.key} <MdOutlineExpandLess style={{width: "20px", transform: "translateY(7px)", marginLeft: "10px"}} className={classes.arrowDown}/></Typography>
+    <Typography  onClick={expandRule} variant="h5" style={{userSelect: "none" , cursor: "pointer", width: "800px", fontWeight: "600"}}>Rule - {Object.keys(rule)[0]} <MdOutlineExpandLess style={{width: "20px", transform: "translateY(7px)", marginLeft: "10px"}} className={classes.arrowDown}/></Typography>
     </>
     }
     

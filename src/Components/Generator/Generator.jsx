@@ -10,60 +10,70 @@ import { IoArrowDownOutline } from "react-icons/io5"
 import { IoMdAddCircle } from "react-icons/io"
 
 
-const Generator = ({
+const Generator = ({ rules, ruleNames, rulesLoaded, ruleCount
 }) => {
-
-  const [rules, setRules] = useState([]);
-  const [ruleCount, setRuleCount] = useState([]);
-  const [rulesLoaded , setRulesLoaded] = useState(false);
 
   const navigate = useNavigate();
 
+  String.prototype.replaceAt = function(index, replacement) {
+    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+}
+
   
 
-  useEffect(() => {
-    ApiService.countRules().then((res) => setRuleCount(res.data))
-  },[])
+  // useEffect(() => {
+  //   ApiService.countRules().then((res) => {setRuleCount(res.data.length) 
+  //                                         setRuleNames(res.data)})
+  // },[])
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    let tempRules = [...rules];
-    let ruleCounter = 0;
+  //   console.log(ruleNames)
 
-    for(let i = 1; i <= ruleCount; i++){
-      ApiService.downloadRule(
-        "rule_" + i + ".0.json",
-        {
-          onDownloadProgress: (progressEvent) => {
-            let completed = Math.round(
-              (progressEvent.loaded / progressEvent.total) * 100
-            );
-          },
-        }
-      ).then((res) => {
-        tempRules.push((res.data))
-        console.log(JSON.stringify(res.data))
-      }).then(() => {
-        setRules(tempRules);
-        ruleCounter++;
-      }).then(() => {
-        if(ruleCounter == ruleCount){
-          console.log("They are the same")
-          setRulesLoaded(true);
-        }
-      })
-    }
+  //   let tempRules = [...rules];
+  //   let ruleCounter = 0;
+
+  //   ruleNames.map((rule) => {
+  //     var tempRuleName
+  //     if(rule.includes("/")){
+  //       tempRuleName = rule.replaceAt(rule.indexOf("/"), "∕")
+  //     }else{
+  //       tempRuleName = rule
+  //     }
+      
+  //     console.log(tempRuleName)
+  //     ApiService.downloadRule(
+  //       tempRuleName,
+  //       {
+  //         onDownloadProgress: (progressEvent) => {
+  //           let completed = Math.round(
+  //             (progressEvent.loaded / progressEvent.total) * 100
+  //           );
+  //         },
+  //       }
+  //     ).then((res) => {
+  //       tempRules.push((res.data))
+  //       console.log(JSON.stringify(res.data))
+  //     }).then(() => {
+  //       setRules(tempRules);
+  //       ruleCounter++;
+  //     }).then(() => {
+  //       if(ruleCounter == ruleCount){
+  //         setRulesLoaded(true);
+  //       }
+  //     })
+  //   })
 
 
     
-  }, [ruleCount])
+  // }, [ruleCount])
 
   const classes = useStyles();
 
   console.log(rules);
 
   const handleNavigateToGenerator = () => {
-    navigate("/generator/generate-rule")
+    navigate("/generator/generate-rule" , {state:{ruleNames:ruleNames , rules: rules}})
   }
 
   return (
