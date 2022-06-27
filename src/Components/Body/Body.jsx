@@ -10,6 +10,7 @@ import ApiService from "../../http-common";
 import httpCommon from "../../http-common";
 import UploadedFile from "./UploadedFiles/UploadedFile";
 import { saveAs } from "file-saver";
+import ConfirmUpdatePopup from "./ConfirmUpdatePopup/ConfirmUpdatePopup";
 import * as JSZip from "jszip";
 
 const Body = ({
@@ -20,6 +21,7 @@ const Body = ({
   setPercentages,
   counters,
   setCounters,
+  rules
 }) => {
   const classes = useStyles();
   const navigate = useNavigate();
@@ -30,9 +32,12 @@ const Body = ({
     isDragActive,
     acceptedFiles,
   } = useDropzone({ onDrop });
-  const [fileRejected, setFilesRejected] = useState(false);
+  const [fileRejected, setFilesRejected] = useState(0);
 
   const [allFilesConverted, setAllFilesConverted] = useState(0);
+  const [updateStorage , setUpdateStorage] = useState(false);
+  const [confirmUpdatePopup , setConfirmUpdatePopup] = useState(0)
+  const [confirmSingleUpdatePopup, setConfirmSingleUpdatePopup] = useState(0)
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -76,15 +81,6 @@ const Body = ({
 
     files.map((file) => {
 
-
-      // for (let i = 0; i < settings[0].originFile.length; i++) {
-      //   if (file.originFile !== settings[0].originFile[i]) {
-      //     counter++;
-      //   } else if (counter === settings[0].originFile.length) {
-      //     originFileChanged = 1;
-      //   }
-      // }
-
       if (
         (JSON.stringify(file.originFile) !== JSON.stringify(settings[0].originFile) ||
         JSON.stringify(file.targetFile) !== JSON.stringify(settings[1].targetFile) ||
@@ -126,7 +122,7 @@ const Body = ({
   }, [settings]);
 
   function onDrop(acceptedFiles) {
-    setFilesRejected(false);
+    setFilesRejected(0);
 
     let counter = 0;
 
@@ -140,7 +136,7 @@ const Body = ({
           counter++;
           break;
         } else if (counter < acceptedFiles.length) {
-          setFilesRejected(true);
+          setFilesRejected(1);
         }
       }
     });
@@ -212,8 +208,43 @@ const Body = ({
     );
   }
 
-  const handleFileUpload = () => {
+  function clean(object) {
+    Object.entries(object).forEach(([k, v]) => {
+      if (v && typeof v === "object") {
+        clean(v);
+      }
+      if (
+        (v && typeof v === "object" && !Object.keys(v).length) ||
+        v === null ||
+        v === undefined ||
+        v === "" ||
+        v === " " ||
+        v.length === 0
+      ) {
+        if (Array.isArray(object)) {
+          object.splice(k);
+        } else {
+          delete object[k];
+        }
+      }
+    });
+    return object;
+  }
+
+  const handlePopup = () => {
+
+    if(files.length > 0){
+      setFilesRejected(0)
+      setConfirmUpdatePopup(1)
+    }else{
+      setFilesRejected(2)
+    }
+    
+  }
+
+  const handleFileUpload = (updateStorage) => {
     files.map((file) => {
+
       if (file.multipleFileOutput == "0") {
         let index = 0;
         let counter = 0;
@@ -229,6 +260,9 @@ const Body = ({
         formData.append("file", file);
         formData.append("fileName", file.name);
         formData.append("fileKey", file.key);
+        formData.append("updateStorage" , updateStorage ? true : false)
+
+        console.log(formData)
 
         ApiService.upload(formData, file.name, file.key, {
           headers: {
@@ -246,6 +280,7 @@ const Body = ({
           file.uploaded = true;
           let tempPercents = [...percentages];
           tempPercents[index].percentage = 100;
+          setConfirmSingleUpdatePopup(0)
 
           setPercentages(tempPercents);
         });
@@ -277,6 +312,9 @@ const Body = ({
         formData.append("file", file);
         formData.append("fileName", file.name);
         formData.append("fileKey", file.key);
+        formData.append("updateStorage" , updateStorage ? true : false)
+
+        
 
         ApiService.uploadToMultipleJSON(formData, file.name, file.key, {
           headers: {
@@ -298,13 +336,14 @@ const Body = ({
 
           let tempCounters = [...counters];
           tempCounters[countersIndex].numRows = res.data;
+          setConfirmSingleUpdatePopup(0)
           setCounters(tempCounters);
         });
       }
     });
   };
 
-  const handleSingleFileUpload = (fileKey) => {
+  const handleSingleFileUpload = (fileKey , updateStorage) => {
     if (settings[2].multipleFileOutput == "0") {
       files.map((file) => {
         let index = 0;
@@ -322,6 +361,7 @@ const Body = ({
           formData.append("file", file);
           formData.append("fileName", file.name);
           formData.append("fileKey", file.key);
+          formData.append("updateStorage" , updateStorage ? true : false)
 
           ApiService.upload(formData, {
             headers: {
@@ -339,6 +379,7 @@ const Body = ({
             file.uploaded = true;
             let tempPercents = [...percentages];
             tempPercents[index].percentage = 100;
+            setConfirmSingleUpdatePopup(0)
             setPercentages(tempPercents);
           });
         }
@@ -372,6 +413,7 @@ const Body = ({
           formData.append("file", file);
           formData.append("fileName", file.name);
           formData.append("fileKey", file.key);
+          formData.append("updateStorage" , updateStorage ? true : false)
 
           ApiService.uploadToMultipleJSON(formData, {
             headers: {
@@ -393,6 +435,7 @@ const Body = ({
 
             let tempCounters = [...counters];
             tempCounters[countersIndex].numRows = res.data;
+            setConfirmSingleUpdatePopup(0)
             setCounters(tempCounters);
 
 
@@ -422,7 +465,7 @@ const Body = ({
       )
         .then((response) => {
           const url = window.URL.createObjectURL(
-            new Blob([JSON.stringify(response.data)])
+            new Blob([JSON.stringify(clean(response.data))])
           );
           const link = document.createElement("a");
           link.href = url;
@@ -487,7 +530,7 @@ const Body = ({
           }
         )
           .then((response) => {
-            let blob = new Blob([JSON.stringify(response.data)]);
+            let blob = new Blob([JSON.stringify(clean(response.data))]);
             zip.file(
               file.name.substr(0, file.name.lastIndexOf(".")) +
                 "-" +
@@ -552,7 +595,7 @@ const Body = ({
           }
         )
           .then((response) => {
-            let blob = new Blob([JSON.stringify(response.data)]);
+            let blob = new Blob([JSON.stringify(clean(response.data))]);
             zip.file(
               file.name.substr(0, file.name.lastIndexOf(".")) +
                 settings[1].targetFile,
@@ -612,7 +655,7 @@ const Body = ({
             }
           )
             .then((response) => {
-              let blob = new Blob([JSON.stringify(response.data)]);
+              let blob = new Blob([JSON.stringify(clean(response.data))]);
               folder.file(
                 file.name.substr(0, file.name.lastIndexOf(".")) +
                   settings[1].targetFile +
@@ -737,7 +780,7 @@ const Body = ({
                 </div>
               </Button>
             ) : (
-              <Button onClick={handleFileUpload} className={classes.button}>
+              <Button onClick={handlePopup} className={classes.button}>
                 <div style={{ transform: "translateY(2px)" }}>Convert All</div>
               </Button>
             )}
@@ -746,12 +789,14 @@ const Body = ({
               <div style={{ transform: "translateY(2px)" }}>Settings</div>
             </Button>
 
-            {fileRejected == true ? (
+            {fileRejected == 1 ? (
               <div className={classes.warningMessage}>
                 Please make sure all files are of format(s):{" "}
                 {intersperse(settings[0].originFile, ", ")}
               </div>
-            ) : (
+            ) : fileRejected == 2 ? <div className={classes.warningMessage}>
+                No files have been uploaded.
+              </div> : (
               <></>
             )}
             <br />
@@ -794,12 +839,17 @@ const Body = ({
                   handleRemoveFile={handleRemoveFile}
                   handleFileDownload={handleFileDownload}
                   handleSingleFileUpload={handleSingleFileUpload}
+                  handlePopup={handlePopup}
+                  confirmSingleUpdatePopup={confirmSingleUpdatePopup}
+                  setConfirmSingleUpdatePopup={setConfirmSingleUpdatePopup}
                 />
               ))}
             </div>
           </form>
         )}
       </Dropzone>
+
+      {confirmUpdatePopup == 1 ? <><ConfirmUpdatePopup handleFileUpload={handleFileUpload} handleSingleFileUpload={handleSingleFileUpload} multipleFiles={1}/></> : <></>}
     </Container>
   );
 };

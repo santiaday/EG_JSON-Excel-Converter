@@ -5,9 +5,11 @@ import ProgressBar from "@ramonak/react-progress-bar";
 import { CircularProgressbar , buildStyles } from 'react-circular-progressbar';
 import './styles.css'
 import { BsFillArrowUpSquareFill , BsArrowDownSquareFill} from 'react-icons/bs'
+import ConfirmUpdatePopup from '../ConfirmUpdatePopup/ConfirmUpdatePopup';
 
-const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwloadPercentage, handleSingleFileUpload, percentages}) => {
+const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwloadPercentage, handleSingleFileUpload, percentages , handleFileUpload, confirmSingleUpdatePopup, setConfirmSingleUpdatePopup}) => {
     const classes = useStyles();
+    const [confirmUpdatePopup , setConfirmUpdatePopup ] = useState(0)
 
     let index = 0;
     let counter = 0;
@@ -18,6 +20,10 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
 
       counter++;
     })
+
+    const handlePopup = (fileKey) => {
+      setConfirmSingleUpdatePopup(1)
+    }
  
 
     const [windowDimenion, detectHW] = useState({
@@ -61,14 +67,16 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
              : 
              percentages[index].percentage == 0 ? <Button disableRipple className={classes.button} style={{float: "right", marginRight: "30px", 
                                       fontWeight: "800", fontSize: "13px" , cursor: "pointer", transform:"translateY(-4px)", height:"25px"}} 
-                                      onClick={() => {handleSingleFileUpload(file.key)}}><Typography variant="h7" style={{transform: "translateY(2px)"}}>Convert</Typography></Button>
+                                      onClick={() => {handlePopup(file.key)}}><Typography variant="h7" style={{transform: "translateY(2px)"}}>Convert</Typography></Button>
              
              : <Typography style={{display: "inline-block", marginRight: "30px", minWidth: "320px" , maxWidth: "450px", float: "right", marginBottom: "20px"}}><ProgressBar style="minWidth: 320px; maxWidth: 450px; display: inline-block;" completed={percentages[index].percentage} customLabel="Converting..." 
                             className="wrapper"
                             barContainerClassName="container"
                             completedClassName="barCompleted"
                             labelClassName="label"/></Typography>}
+                            {confirmSingleUpdatePopup == 1 ? <><ConfirmUpdatePopup handleSingleFileUpload={handleSingleFileUpload} fileKey={file.key} multipleFiles={0} /></> : <></>}
              </Typography>
+             
       
       : 
       <Typography variant="h6" style={{minWidth: "320px", maxWidth: "900px" , marginTop: "20px", marginBottom: "20px"}}> <Typography variant="h7" style={{marginRight: "20px", display: "inline-block", marginBottom: "10px", float: "left", maxWidth: "40vw", overflow: "hidden" , textOverflow: "ellipsis"}}>{file.name}</Typography>
@@ -86,7 +94,7 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
              : 
              percentages[index].percentage == 0 ? <Button disableRipple style={{float: "right", marginRight: "30px", 
                                       fontSize: "27px" , cursor: "pointer", transform:"translateY(-2px)", height:"25px" , transform: "translateY(10px)" , color: "#000099"}} 
-                                      onClick={() => {handleSingleFileUpload(file.key)}}><Typography variant="h7"><BsFillArrowUpSquareFill style={{width: "50px"}}/></Typography></Button>
+                                      onClick={() => {handlePopup(file.key)}}><Typography variant="h7"><BsFillArrowUpSquareFill style={{width: "50px"}}/></Typography></Button>
              
              : <Typography style={{display: "inline-block", marginRight: "30px", minWidth: "30px" , maxWidth: "30px", minHeight: "30px" , maxHeight: "30px" , 
                                   float: "right", marginBottom: "20px"}}><CircularProgressbar value={percentages[index].percentage} styles={buildStyles({
@@ -97,10 +105,14 @@ const UploadedFile = ({file, files, handleRemoveFile, handleFileDownload , donwl
                                                     pathColor: '#000099',
                                                     trailColor: 'rgba(128,128,128, 0.1)',
                                                     backgroundColor: 'white',
-                                                  })}/></Typography>}
+                                                  })}/></Typography>
+                                                  }
+                                                  {confirmSingleUpdatePopup == 1 ? <><ConfirmUpdatePopup handleSingleFileUpload={handleSingleFileUpload} fileKey={file.key} multipleFiles={0} /></> : <></>}
             <br></br>
             <br></br>
              </Typography>
+
+             
   
 
     

@@ -15,7 +15,7 @@ import { BsArrowRight } from "react-icons/bs";
 import Divider from '@mui/material/Divider';
 
 const RuleUpdateConfirmationPopup = ({
-rules, ruleTitle, newRule }) => {
+rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup ,ruleNames , handleDownloadRule}) => {
 
   const[existingRuleIndex , setExistingRuleIndex] = useState(-1)
 
@@ -55,6 +55,22 @@ rules, ruleTitle, newRule }) => {
     );
   }
 
+  const handleNavigateToNewRule = () => {
+    navigate("/generator" , {
+      state: { rules: rules , ruleNames: ruleNames },
+    })
+
+    setRuleUpdatePopup(0)
+  }
+
+  const handleNavigateRuleManager = () => {
+    navigate("/generator" , {
+      state: { rules: rules , ruleNames: ruleNames },
+    })
+
+    setRuleUpdatePopup(0)
+  }
+
   const classes = useStyles();
 
   return (
@@ -63,6 +79,9 @@ rules, ruleTitle, newRule }) => {
       <div className="popup-box">
         <div className="box">
         <br className={"unselectable"} />
+        {ruleUpdatePopup == 1 ? 
+        
+        <>
           <Typography variant="h3" style={{ marginBottom: "20px" }}>
             Confirm Rule Update?
           </Typography>
@@ -92,6 +111,43 @@ rules, ruleTitle, newRule }) => {
           <Button className={classes.altButton}>
             <span style={{ transform: "translateY(2px)" }}>Revert Changes</span>
           </Button>
+          </>
+        
+        : ruleUpdatePopup == 2 ? 
+        
+        <>
+          <Typography variant="h3" style={{ marginBottom: "20px" }}>
+            Confirm Rule Storage Update?
+          </Typography>
+          <Typography variant="h5" style={{fontWeight: "500"}}>
+            Would you like to add the rule "{ruleTitle}" to the rule storage system? 
+          </Typography>
+          <br className={"unselectable"} />
+          <Typography variant="h5" style={{ textDecoration: "underline"}}>
+            Rule Content: 
+          </Typography>
+          <br/>
+          <div style={{textAlign: "left", width: "50%", marginLeft: "42%"}}>
+          <JSONPretty id="json-pretty" data={JSON.stringify(newRule)}></JSONPretty>
+          </div>
+          <br className={"unselectable"} />
+
+          <Button className={classes.button} onClick={() => {handleStoreRule();
+                                                            handleNavigateRuleManager();}}>
+            <span style={{ transform: "translateY(2px)" }}>Yes</span>
+          </Button>
+          <Button className={classes.altButton} onClick={() => {handleNavigateToNewRule();
+                                                                handleDownloadRule();}}>
+            <span style={{ transform: "translateY(2px)" }}>No</span>
+          </Button>
+          </>
+
+          : 
+
+          <></>
+        
+        }
+          
           
         </div>
 

@@ -133,7 +133,7 @@ export default makeStyles((theme) => ({
        transition: "background 0.15s ease-in-out",
        color: "white",
        minWidth: "120px",
-       margin: "5px 10px 15px 10px",
+       margin: "5px 10px 15px 0px",
        borderRadius: "10px",
        cursor: "pointer",
        fontWeight: "bold",
@@ -143,6 +143,22 @@ export default makeStyles((theme) => ({
          border: "2px solid #000000",
         transition: "all 0.15s ease-in-out"
       }},
+      redButton: {
+        background: "rgb(255, 55, 92)",
+        border: "2px solid rgb(255, 55, 92)",
+         transition: "background 0.15s ease-in-out",
+         color: "white",
+         minWidth: "120px",
+         margin: "5px 10px 15px 0px",
+         borderRadius: "10px",
+         cursor: "pointer",
+         fontWeight: "bold",
+    
+         '&:hover': {
+          background: "rgb(201, 55, 92)",
+           border: "2px solid rgb(201, 55, 92)",
+          transition: "all 0.15s ease-in-out"
+        }},
       buttonGreen: {
         background: "#57deb7",
         border: "2px solid #57deb7",

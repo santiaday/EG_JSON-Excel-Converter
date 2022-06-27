@@ -108,7 +108,7 @@ function App() {
         <BrowserRouter>
         <Header />
           <Routes>
-            <Route path="/" element={<Body settings={settings} setSettings={setSettings} files={files} setFiles={setFiles} percentages={percentages} setPercentages={setPercentages}
+            <Route path="/" element={<Body rules={rules} settings={settings} setSettings={setSettings} files={files} setFiles={setFiles} percentages={percentages} setPercentages={setPercentages}
                                       counters={counters} setCounters={setCounters}/>} />
 
             <Route path="/settings" element={<Settings settings={settings} setSettings={setSettings} originFile={originFile}

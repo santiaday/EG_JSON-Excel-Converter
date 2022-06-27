@@ -14,7 +14,7 @@ import RuleLineListComponent from "./FormComponents/RuleLineListComponent.jsx";
 import RuleListComponent from "./FormComponents/RuleListComponent";
 import RuleUpdateConfirmationPopup from "./RuleUpdateConfirmation/RuleUpdateConfirmationPopup";
 
-const Generator = ({}) => {
+const NewRulePage = ({}) => {
 
   const location = useLocation();
   let ruleNames = location.state.ruleNames
@@ -450,6 +450,12 @@ const Generator = ({}) => {
       ],
     },
   });
+
+  const navigate = useNavigate();
+
+  const clearNewRule = () => {
+    window.location.reload()
+  }
 
   var _ = require("lodash");
   function checkNested(obj /*, level1, level2, ... levelN*/) {
@@ -1011,7 +1017,7 @@ const Generator = ({}) => {
   };
 
   useEffect(() => {
-    let temp = cloneDeep(newRule);
+    console.log(newRule)
   }, [newRule, listCounters, signShown]);
 
   const handleGenerateRuleJSON = () => {
@@ -1019,38 +1025,63 @@ const Generator = ({}) => {
 
       if(ruleNames.indexOf(ruleTitle + ".json") > -1){
         setRuleUpdatePopup(1)
+      }else{
+        setRuleUpdatePopup(2);
+        
       }
 
-      const url = window.URL.createObjectURL(
-        new Blob([JSON.stringify(clean(newRule))])
-      );
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        ruleTitle + ".json"
-      ); 
-      document.body.appendChild(link);
-      link.click();
-  
-      const formData = new FormData();
-      const rule = new Blob([JSON.stringify(clean(newRule))]);
-  
-            formData.append("rule", rule);
-            formData.append("ruleName", ruleTitle);
-  
-            ApiService.createRule(formData, {
-              headers: {
-                "content-type": "multipart/form-data",
-              },
-
-    })
-
-
-    
-
-
   };
+
+  const handleStoreRule = () => {
+    const url = window.URL.createObjectURL(
+      new Blob([JSON.stringify(clean(newRule))])
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      ruleTitle + ".json"
+    ); 
+    document.body.appendChild(link);
+    link.click();
+
+    const formData = new FormData();
+    const rule = new Blob([JSON.stringify(clean(newRule))]);
+
+          formData.append("rule", rule);
+          formData.append("ruleName", ruleTitle);
+
+          ApiService.createRule(formData, {
+            headers: {
+              "content-type": "multipart/form-data",
+            },
+
+  })
+  }
+
+  const handleDownloadRule = () => {
+    const url = window.URL.createObjectURL(
+      new Blob([JSON.stringify(clean(newRule))])
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      ruleTitle + ".json"
+    ); 
+    document.body.appendChild(link);
+    link.click();
+  }
+
+  const handleNavigateToManager = () => {
+    navigate("/generator" , {
+      state: { rules: rules , ruleNames: ruleNames },
+    })
+  }
+
+
+
+
   return (
     <Container style={{ width: "90vw", maxWidth: "85vw" }}>
       <div className={classes.toolbar} />
@@ -1240,18 +1271,29 @@ const Generator = ({}) => {
             {"}"}
           </Typography>
 
-          <Typography style={{ fontSize: "30px", marginTop: "20px" }} inline>
-            <Button onClick={handleGenerateRuleJSON} className={classes.button}>
-              <div style={{ transform: "translateY(2px)" }}>Generate</div>
-            </Button>
-          </Typography>
+          
 
-          {ruleUpdatePopup == 1 ? <RuleUpdateConfirmationPopup rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)}/> : <></>}
+          {ruleUpdatePopup == 1 ? <RuleUpdateConfirmationPopup rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={1} handleStoreRule={handleStoreRule} ruleNames={ruleNames}  handleDownloadRule={handleDownloadRule}/> : 
+          ruleUpdatePopup == 2 ? <RuleUpdateConfirmationPopup ruleNames={ruleNames} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={2} rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} handleStoreRule={handleStoreRule} handleDownloadRule={handleDownloadRule}/> : <></>}
         </>
       ) : (
         <></>
       )}
+
+      <Typography style={{ fontSize: "30px", marginTop: "20px" }} inline>
+      <Button onClick={handleNavigateToManager} className={classes.altButton}>
+              <div style={{ transform: "translateY(2px)" }}>Go Back</div>
+            </Button>
+            {titleEntered ?  <><Button onClick={() => {clearNewRule()}} className={classes.redButton}>
+              <div style={{ transform: "translateY(2px)" }}>Reset</div>
+            </Button>
+            <Button onClick={handleGenerateRuleJSON} className={classes.button}>
+              <div style={{ transform: "translateY(2px)" }}>Generate</div>
+            </Button></>: <></>}
+            
+          </Typography>
+            
     </Container>
   );
 };
-export default Generator;
+export default NewRulePage;

@@ -7,7 +7,7 @@ import { IoArrowDownOutline , IoMdAddCircle } from "react-icons/io5"
 import useStyles from "./ruleObjectStyles";
 import { MdOutlineExpandMore, MdOutlineExpandLess } from 'react-icons/md';
 
-const RuleObject = ({ rule }) => {
+const RuleObject = ({ rule , handleEditRule }) => {
 
 
   var JSONPretty = require('react-json-pretty');
@@ -21,6 +21,30 @@ const RuleObject = ({ rule }) => {
     }else{
         setRuleExpanded(false)
     }
+  }
+
+
+  function clean(object) {
+    Object.entries(object).forEach(([k, v]) => {
+      if (v && typeof v === "object") {
+        clean(v);
+      }
+      if (
+        (v && typeof v === "object" && !Object.keys(v).length) ||
+        v === null ||
+        v === undefined ||
+        v === "" ||
+        v === " " ||
+        v.length === 0
+      ) {
+        if (Array.isArray(object)) {
+          object.splice(k);
+        } else {
+          delete object[k];
+        }
+      }
+    });
+    return object;
   }
 
   return (
@@ -41,8 +65,7 @@ const RuleObject = ({ rule }) => {
     <></> : 
     <>
     
-    <JSONPretty id="json-pretty" data={JSON.stringify(rule)}></JSONPretty>
-    <Button className={classes.altButton}><div style={{ transform: "translateY(2px)" }}>Edit</div></Button>
+    <JSONPretty id="json-pretty" data={JSON.stringify(clean(rule))}></JSONPretty>
     </>
     }
         
