@@ -280,7 +280,7 @@ const Body = ({
           file.uploaded = true;
           let tempPercents = [...percentages];
           tempPercents[index].percentage = 100;
-          setConfirmSingleUpdatePopup(0)
+          setConfirmUpdatePopup(0)
 
           setPercentages(tempPercents);
         });
@@ -336,7 +336,7 @@ const Body = ({
 
           let tempCounters = [...counters];
           tempCounters[countersIndex].numRows = res.data;
-          setConfirmSingleUpdatePopup(0)
+          setConfirmUpdatePopup(0)
           setCounters(tempCounters);
         });
       }
@@ -849,7 +849,7 @@ const Body = ({
         )}
       </Dropzone>
 
-      {confirmUpdatePopup == 1 ? <><ConfirmUpdatePopup handleFileUpload={handleFileUpload} handleSingleFileUpload={handleSingleFileUpload} multipleFiles={1}/></> : <></>}
+      {confirmUpdatePopup == 1 ? <><ConfirmUpdatePopup confirmUpdatePopup={confirmUpdatePopup} handleFileUpload={handleFileUpload} handleSingleFileUpload={handleSingleFileUpload} multipleFiles={1}/></> : <></>}
     </Container>
   );
 };

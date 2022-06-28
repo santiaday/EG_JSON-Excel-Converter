@@ -27,6 +27,10 @@ class ApiService {
     createRule(rule, ruleName){
       return axios.post("http://localhost:8080/rules/createRule", rule, ruleName);
     }
+
+    downloadMasterSpreadsheet(config){
+      return axios.get("http://localhost:8080/rules/download-rule-spreadsheet" , config);
+    }
 }
 
 export default new ApiService();

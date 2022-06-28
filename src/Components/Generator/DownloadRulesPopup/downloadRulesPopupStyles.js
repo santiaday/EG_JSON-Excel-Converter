@@ -5,12 +5,12 @@ const drawerWidth = 0;
 
 
 export default makeStyles((theme) => ({
-  toolbar: theme.mixins.toolbar,
+    
+    toolbar: theme.mixins.toolbar,
   title: {
     marginTop: "175px",
     width:"100%",
-    textAlign:"left",
-    fontSize: "clamp(40px, 5vw, 60px)", 
+    textAlign:"left"
   },  
   appBar: {
     boxShadow: 'none',
@@ -97,10 +97,7 @@ export default makeStyles((theme) => ({
     borderRadius: "25px",
     width: "80%",
     maxWidth: "982px",
-    minWidth: "290px",
     height: "25vh",
-    maxHeight: "300px",
-    minHeight: "300px",
     '&:hover': {
       background: "rgba(128,128,128, 0.3)",
       transition: "background 0.15s ease-in-out"
@@ -112,60 +109,43 @@ export default makeStyles((theme) => ({
     whiteSpace: "nowrap"
   },
   button: {
-    background: "#000099",
-    transition: "background 0.15s ease-in-out",
-    color: "white",
-    border: "2px solid #000099",
-    margin: "5px 10px 15px 0px",
-    minWidth: "120px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
+     background: "#000099",
+     transition: "background 0.15s ease-in-out",
+     color: "white",
+     border: "2px solid #000099",
+     margin: "5px 5px 5px 5px",
+     marginTop: "1%",
+     borderRadius: "10px",
+     cursor: "pointer",
+     fontWeight: "bold",
 
-    '&:hover': {
-     background: "#00006A",
-     border: "2px solid #00006A",
-     transition: "all 0.15s ease-in-out"
-   }},
-   altButton: {
-      background: "rgba(56, 55, 55)",
-      border: "2px solid rgba(56, 55, 55)",
-       transition: "background 0.15s ease-in-out",
-       color: "white",
-       minWidth: "120px",
-       margin: "5px 10px 15px 0px",
-       borderRadius: "10px",
-       cursor: "pointer",
-       fontWeight: "bold",
-  
-       '&:hover': {
+     '&:hover': {
+      background: "#00006A",
+      border: "2px solid #000099",
+      transition: "background 0.15s ease-in-out"
+    }},
+    altButton: {
+        background: "rgba(56, 55, 55)",
+        border: "2px solid rgba(56, 55, 55)",
+        transition: "background 0.15s ease-in-out",
+        color: "white",
+        margin: "5px 5px 5px 5px",
+        marginTop: "1%",
+        borderRadius: "10px",
+        cursor: "pointer",
+        fontWeight: "bold",
+   
+        '&:hover': {
         background: "#000000",
-         border: "2px solid #000000",
-        transition: "all 0.15s ease-in-out"
-      }},
-      buttonGreen: {
-        background: "#57deb7",
-        border: "2px solid #57deb7",
-         transition: "background 0.15s ease-in-out",
-         color: "white",
-         minWidth: "120px",
-         margin: "5px 10px 15px 0px",
-         borderRadius: "10px",
-         cursor: "pointer",
-         fontWeight: "bold",
-    
-         '&:hover': {
-          background: "#47ba99",
-           border: "2px solid #47ba99",
-          transition: "all 0.15s ease-in-out"
-        }},
+        border: "2px solid #000000",
+         transition: "all 0.15s ease-in-out"
+       }},
     link: {
       fontSize: "130%", 
       cursor: "pointer", 
       display: "inline-block", 
-      marginLeft: "20px", 
-      marginRight: "20px", 
-      marginBottom: "15px",
+      marginLeft: "1%", 
+      transform: "translateY(10%)",
       
       '&:hover': {
         color: "#000099",
@@ -175,24 +155,9 @@ export default makeStyles((theme) => ({
         textDecoration: "none",
         color: "black"
       },
-      text: {
-        fontWeight: "bold",  
-        fontSize: "clamp(25px, 2vw, 30px)", 
-        cursor: "pointer",  
-        pointerEvents: "none",
-      },
-      subText: {
-        fontSize: "clamp(20px, 1.5vw, 25px)", 
-        cursor: "pointer", 
-        overflowWrap: "break-word"
-      },
-      warningMessage: {
-        fontSize: "130%", 
-        cursor: "pointer", 
-        display: "inline-block", 
-        transform: "translateY(10%)",
-        color: "red",
-        marginBottom: "15px",
-      },
+      subtitle:{
+          marginBottom: "4%"
+      }
   }
+
 ));

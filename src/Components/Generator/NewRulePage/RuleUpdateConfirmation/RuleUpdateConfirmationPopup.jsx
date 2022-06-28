@@ -106,10 +106,10 @@ rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup
           <br className={"unselectable"} />
 
           <Button className={classes.button}>
-            <span style={{ transform: "translateY(2px)" }}>Save Changes</span>
+            <span style={{ transform: "translateY(2px)" }}>Update Storage</span>
           </Button>
           <Button className={classes.altButton}>
-            <span style={{ transform: "translateY(2px)" }}>Revert Changes</span>
+            <span style={{ transform: "translateY(2px)" }}>Download Only</span>
           </Button>
           </>
         
