@@ -58,6 +58,33 @@ const Generator = ({ rules, ruleNames, rulesLoaded, ruleCount
     return object;
   }
 
+  const handleDownloadRule = (ruleKey) => {
+
+    rules.map((rule) => {
+      console.log(Object.keys(rule)[0])
+      console.log(ruleKey)
+
+
+      if(Object.keys(rule)[0] === ruleKey){
+
+        let blob = new Blob([JSON.stringify(rule)]);
+        const url = window.URL.createObjectURL(
+            new Blob([JSON.stringify(clean(rule))])
+          );
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute(
+            "download",
+            ruleKey.replaceAt(Object.keys(rule)[0].indexOf("/"), "∕") + ".json"
+          ); 
+          document.body.appendChild(link);
+          link.click();
+
+      }
+    
+});
+  }
+
   const handleDownloadAllRules = (multipleJson) => {
     if(multipleJson){
       var zip = new JSZip();
@@ -160,7 +187,7 @@ const Generator = ({ rules, ruleNames, rulesLoaded, ruleCount
      { rulesLoaded ? 
      <>
       {rules.map((rule) => (
-        <RuleObject rule={rule}/>
+        <RuleObject rule={rule} handleDownloadRule={handleDownloadRule}/>
       ))}
       
       </>

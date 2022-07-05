@@ -6,8 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoArrowDownOutline , IoMdAddCircle } from "react-icons/io5"
 import useStyles from "./ruleObjectStyles";
 import { MdOutlineExpandMore, MdOutlineExpandLess } from 'react-icons/md';
+import ApiService from "../../../http-common";
 
-const RuleObject = ({ rule , handleEditRule }) => {
+const RuleObject = ({ rule , handleEditRule , handleDownloadRule }) => {
 
 
   var JSONPretty = require('react-json-pretty');
@@ -21,6 +22,13 @@ const RuleObject = ({ rule , handleEditRule }) => {
     }else{
         setRuleExpanded(false)
     }
+  }
+
+const handleDeleteRule = (ruleName) => {
+    const formData = new FormData();
+    formData.append("ruleName" , ruleName);
+
+    ApiService.deleteRule(formData).then(window.location.reload());
   }
 
 
@@ -66,6 +74,8 @@ const RuleObject = ({ rule , handleEditRule }) => {
     <>
     
     <JSONPretty id="json-pretty" data={JSON.stringify(clean(rule))}></JSONPretty>
+    <Button className={classes.altButton} onClick={() => handleDownloadRule(Object.keys(rule)[0])}><div style={{ transform: "translateY(2px)" }}>Download</div></Button>
+    <Button className={classes.redButton} onClick={() => handleDeleteRule(Object.keys(rule)[0])}><div style={{ transform: "translateY(2px)" }}>Delete</div></Button>
     </>
     }
         

@@ -31,6 +31,10 @@ class ApiService {
     downloadMasterSpreadsheet(config){
       return axios.get("http://localhost:8080/rules/download-rule-spreadsheet" , config);
     }
+
+    deleteRule(ruleName){
+      return axios.post("http://localhost:8080/rules/deleteRule" , ruleName);
+    }
 }
 
 export default new ApiService();

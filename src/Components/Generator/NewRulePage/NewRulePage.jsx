@@ -470,6 +470,7 @@ const NewRulePage = ({}) => {
   }
 
   function clean(object) {
+    if(object != null){
     Object.entries(object).forEach(([k, v]) => {
       if (v && typeof v === "object") {
         clean(v);
@@ -489,6 +490,7 @@ const NewRulePage = ({}) => {
         }
       }
     });
+  }
     return object;
   }
 
@@ -1273,8 +1275,8 @@ const NewRulePage = ({}) => {
 
           
 
-          {ruleUpdatePopup == 1 ? <RuleUpdateConfirmationPopup rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={1} handleStoreRule={handleStoreRule} ruleNames={ruleNames}  handleDownloadRule={handleDownloadRule}/> : 
-          ruleUpdatePopup == 2 ? <RuleUpdateConfirmationPopup ruleNames={ruleNames} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={2} rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} handleStoreRule={handleStoreRule} handleDownloadRule={handleDownloadRule}/> : <></>}
+          {ruleUpdatePopup == 1 ? <RuleUpdateConfirmationPopup clean={clean} rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={1} handleStoreRule={handleStoreRule} ruleNames={ruleNames}  handleDownloadRule={handleDownloadRule}/> : 
+          ruleUpdatePopup == 2 ? <RuleUpdateConfirmationPopup clean={clean} ruleNames={ruleNames} setRuleUpdatePopup={setRuleUpdatePopup} ruleUpdatePopup={2} rules={rules} ruleTitle={ruleTitle} newRule={clean(newRule)} handleStoreRule={handleStoreRule} handleDownloadRule={handleDownloadRule}/> : <></>}
         </>
       ) : (
         <></>

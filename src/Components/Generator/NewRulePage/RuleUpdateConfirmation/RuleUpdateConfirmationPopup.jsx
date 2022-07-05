@@ -15,7 +15,7 @@ import { BsArrowRight } from "react-icons/bs";
 import Divider from '@mui/material/Divider';
 
 const RuleUpdateConfirmationPopup = ({
-rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup ,ruleNames , handleDownloadRule}) => {
+rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup ,ruleNames , handleDownloadRule, clean}) => {
 
   const[existingRuleIndex , setExistingRuleIndex] = useState(-1)
 
@@ -94,7 +94,7 @@ rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup
           <Typography variant="h5" style={{ textDecoration: "underline" , textAlign: "left"}}>
             Existing Rule:
           </Typography>
-          <JSONPretty style={{textAlign: "left", width: "50%"}} id="json-pretty" data={JSON.stringify(rules[existingRuleIndex])}></JSONPretty>
+          <JSONPretty style={{textAlign: "left", width: "50%"}} id="json-pretty" data={clean(JSON.stringify(rules[existingRuleIndex]))}></JSONPretty>
           </div>
           <div>
           <Typography variant="h5" style={{ textDecoration: "underline" , textAlign: "left"}}>
@@ -105,10 +105,10 @@ rules, ruleTitle, newRule , ruleUpdatePopup, handleStoreRule, setRuleUpdatePopup
           </div>
           <br className={"unselectable"} />
 
-          <Button className={classes.button}>
+          <Button className={classes.button} onClick={handleStoreRule} >
             <span style={{ transform: "translateY(2px)" }}>Update Storage</span>
           </Button>
-          <Button className={classes.altButton}>
+          <Button className={classes.altButton} onClick={handleDownloadRule}>
             <span style={{ transform: "translateY(2px)" }}>Download Only</span>
           </Button>
           </>

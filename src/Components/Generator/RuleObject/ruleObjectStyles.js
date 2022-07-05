@@ -146,19 +146,35 @@ export default makeStyles((theme) => ({
       buttonGreen: {
         background: "#57deb7",
         border: "2px solid #57deb7",
-         transition: "background 0.15s ease-in-out",
-         color: "white",
-         minWidth: "120px",
-         margin: "5px 10px 15px 0px",
-         borderRadius: "10px",
-         cursor: "pointer",
-         fontWeight: "bold",
+        transition: "background 0.15s ease-in-out",
+        color: "white",
+        minWidth: "100px",
+        margin: "10px 10px 15px 0px",
+        borderRadius: "10px",
+        cursor: "pointer",
+        fontWeight: "bold",
     
          '&:hover': {
           background: "#47ba99",
            border: "2px solid #47ba99",
           transition: "all 0.15s ease-in-out"
         }},
+        redButton: {
+          background: "rgb(255, 55, 92)",
+          border: "2px solid rgb(255, 55, 92)",
+           transition: "background 0.15s ease-in-out",
+           color: "white",
+           minWidth: "120px",
+           margin: "10px 10px 15px 0px",
+           borderRadius: "10px",
+           cursor: "pointer",
+           fontWeight: "bold",
+      
+           '&:hover': {
+            background: "rgb(201, 55, 92)",
+             border: "2px solid rgb(201, 55, 92)",
+            transition: "all 0.15s ease-in-out"
+          }},
     link: {
       fontSize: "130%", 
       cursor: "pointer", 
