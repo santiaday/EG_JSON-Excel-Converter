@@ -2,13 +2,12 @@ package com.example.Excel2Json.controller;
 
 import com.example.Excel2Json.payload.UploadFileResponse;
 import com.example.Excel2Json.service.FileStorageService;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.google.gson.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellRangeAddressBase;
+import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import java.nio.file.Paths;
 import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.FileInputStream;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -128,6 +128,31 @@ public class FileController {
                 .body(resource);
     }
 
+    @GetMapping("/rules/download-rule-spreadsheet")
+    public ResponseEntity<Resource> downloadRuleSpreadsheet(HttpServletRequest request) {
+        System.out.println("Downloading file...");
+        Resource resource = fileStorageService.loadRuleAsResource("master_rules.xlsx");
+
+
+        // Try to determine file's content type
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException ex) {
+            logger.info("Could not determine file type.");
+        }
+
+        // Fallback to the default content type if type could not be determined
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
     @PostMapping("/rules/createRule")
     public void createRule(@RequestParam("rule") MultipartFile jsonRule , @RequestParam("ruleName") String ruleName) {
 
@@ -156,8 +181,8 @@ public class FileController {
             XSSFSheet workSheet = workBook.getSheetAt(0);
             int numRows = workSheet.getPhysicalNumberOfRows();
 
-            int i = 1;
-            int j = 2;
+            int i = 4;
+            int j = 5;
 
             JsonObject jsonObject = new JsonObject();
 
@@ -202,8 +227,8 @@ public class FileController {
             XSSFSheet workSheet = workBook.getSheetAt(0);
             int numRows = workSheet.getPhysicalNumberOfRows();
 
-            int i = 1;
-            int j = 2;
+            int i = 4;
+            int j = 5;
 
             JsonObject jsonObject = new JsonObject();
             JsonObject tempJsonObject = new JsonObject();
@@ -257,7 +282,7 @@ public class FileController {
                 Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                 boolean exists = Files.exists(path);
                 if (!exists) {
-
+                    write_to_excel_spreadsheet(jsonObject, true);
                     FileWriter file = new FileWriter("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\" + ruleName + ".json");
                     file.write(gson.toJson(jsonObject));
                     file.close();
@@ -266,6 +291,7 @@ public class FileController {
                     if (!(jsonObject.toString().equals(content))) {
                         JsonObject temp = new JsonObject();
                         temp = jsonObject;
+                        write_to_excel_spreadsheet(jsonObject, false);
                         FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                         file.write(gson.toJson(temp));
                         file.close();
@@ -291,11 +317,11 @@ public class FileController {
         List<String> ruleNames = new ArrayList<>();
 
         for(File f : directoryListing){
-            if(f.getName().contains("∕")){
+            if(f.getName().contains("∕") && f.getName().contains(".json")){
                 StringBuilder sb = new StringBuilder(f.getName());
                 sb.setCharAt(f.getName().indexOf("∕") , '/');
                 ruleNames.add(sb.toString());
-            }else{
+            }else if(f.getName().contains(".json")){
                 ruleNames.add(f.getName());
             }
 
@@ -386,7 +412,6 @@ public class FileController {
 
                     if (header.getCell(j).toString().contains("---")) {
                         jsonArray.add(jsonObject);
-                        System.out.println("NUMBER 1: " + jsonObject);
                         jsonObject = new JsonObject();
                         continue;
                     }
@@ -406,12 +431,21 @@ public class FileController {
                         continue;
                     }
 
-
-                    String columnName = header.getCell(j).toString();
+                    JsonArray columnValues = new JsonArray();
                     String columnValue = row.getCell(j).toString();
+                    String columnName = header.getCell(j).toString();
+
+                    if (header.getCell(j).toString().contains("sub_product_list")) {
+                        String[] temp = row.getCell(j).toString().split(",");
+                        for(String s : temp){
+                            columnValues.add(s);
+                        }
+                    }
 
 
-                    if(columnValue != ""){
+                    if(columnValue != "" && columnValues.size() > 0){
+                        jsonObject.add(columnName, columnValues);
+                    }else if(columnValue != ""){
                         jsonObject.addProperty(columnName, columnValue);
                     }
                 }
@@ -421,6 +455,430 @@ public class FileController {
             e.printStackTrace();
         }
         return jsonArray;
+    }
+
+
+
+    //METHOD FOR ADDING RULE TO EXCEL SPREADSHEET
+    public void write_to_excel_spreadsheet(JsonObject jsonObject, boolean newRule){
+
+        try{
+            FileInputStream fis = new FileInputStream("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
+            XSSFWorkbook workBook = new XSSFWorkbook(fis);
+            fis.close();
+            XSSFSheet worksheet = workBook.getSheetAt(0);
+            int headerInt = worksheet.getPhysicalNumberOfRows();
+
+
+            for(int i = 0; i < workBook.getNumberOfSheets() - 1; i++){
+                XSSFSheet tempWorksheet = workBook.getSheetAt(i);
+                tempWorksheet.copyRows(0 , 2 , headerInt, new CellCopyPolicy());
+            }
+
+            for(int i = 0; i < workBook.getNumberOfSheets() - 1; i++){
+
+                XSSFSheet tempWorksheet = workBook.getSheetAt(i);
+                XSSFRow key = tempWorksheet.getRow(headerInt + 1);
+                XSSFRow value = tempWorksheet.getRow(headerInt + 2);
+                XSSFCellStyle style = workBook.createCellStyle();
+                IndexedColorMap colorMap = workBook.getStylesSource().getIndexedColors();
+                XSSFColor rgb = new XSSFColor(new java.awt.Color(221,255,235), colorMap);
+                style.setFillForegroundColor(rgb);
+                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                style.setBorderColor(XSSFCellBorder.BorderSide.BOTTOM , new XSSFColor(new java.awt.Color(0,0,0), colorMap));
+                style.setBorderColor(XSSFCellBorder.BorderSide.LEFT , new XSSFColor(new java.awt.Color(0,0,0), colorMap));
+                style.setBorderColor(XSSFCellBorder.BorderSide.RIGHT , new XSSFColor(new java.awt.Color(0,0,0), colorMap));
+                style.setBorderBottom(BorderStyle.THIN);
+                style.setBorderLeft(BorderStyle.THIN);
+                style.setBorderRight(BorderStyle.THIN);
+
+                if(i == 0){
+                    key.getCell(0).setCellValue(jsonObject.keySet().toArray()[0].toString());
+                    continue;
+                }else if(i == 1){
+                    continue;
+                }
+
+                if(i == 2) {
+                    for (int j = 0; j < key.getPhysicalNumberOfCells(); j++) {
+                        if (value.getCell(j) == null || value.getCell(j).toString() == "") {
+                            String cellVal = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonObject("key").get(key.getCell(j).toString()).toString();
+                            value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length()-1));
+                            value.getCell(j).setCellStyle(style);
+                        }
+                    }
+                }
+
+                if(i == 3){
+                    int j = 0;
+                    for(int k = 0; k < jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size(); k++){
+
+                        while(value.getCell(j) == null || value.getCell(j).toString() == "") {
+                            if (jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(k).getAsJsonObject().has((key.getCell(j).toString()))) {
+                                String cellVal = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(k).getAsJsonObject().get((key.getCell(j).toString())).toString();
+
+
+                                if (cellVal.charAt(1) == '\"') {
+                                    cellVal = cellVal.replace("\"", "");
+                                }
+
+                                value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                value.getCell(j).setCellStyle(style);
+
+                            }
+                            j++;
+                        }
+
+                            if(value.getCell(j).toString() != "" || value.getCell(j) != null){
+                                j=j+3;
+                                continue;
+                            }
+
+
+                            }
+
+
+                }
+
+                if(i == 4){
+                    int j = 0;
+                    JsonArray ruleLineListArray = new JsonArray();
+
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 1 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("rule_line_list")){
+                        ruleLineListArray = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().get("rule_line_list").getAsJsonArray();
+
+                        for(int k = 0; k < ruleLineListArray.size(); k++){
+
+                            while((value.getCell(j) == null || value.getCell(j).toString() == "") && (key.getCell(j) != null)){
+
+                                String cellVal = "";
+                                if(ruleLineListArray.get(k).getAsJsonObject().has(key.getCell(j).toString())){
+                                    cellVal = ruleLineListArray.get(k).getAsJsonObject().get((key.getCell(j).toString())).toString();
+                                }
+
+
+                                if(cellVal != "" && cellVal.charAt(1) == '\"'){
+                                    cellVal = cellVal.replace("\"" , "");
+                                }
+
+
+                                if(cellVal != ""){
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length()-1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                                j++;
+                            }
+
+                            if((value.getCell(j) != null) && (key.getCell(j) != null)){
+                                j++;
+                                continue;
+                            }
+
+                        }
+
+                    }
+
+
+
+                }
+
+                if(i == 5){
+                    int j = 0;
+                    JsonArray ruleLineListArray = new JsonArray();
+
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 2 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("rule_line_list")){
+                        ruleLineListArray = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().get("rule_line_list").getAsJsonArray();
+
+                        for(int k = 0; k < ruleLineListArray.size(); k++){
+
+                            while((value.getCell(j) == null || value.getCell(j).toString() == "")  && (key.getCell(j) != null)){
+
+                                String cellVal = "";
+                                if(ruleLineListArray.get(k).getAsJsonObject().has(key.getCell(j).toString())){
+                                    cellVal = ruleLineListArray.get(k).getAsJsonObject().get((key.getCell(j).toString())).toString();
+                                }
+
+
+                                if(cellVal != "" && cellVal.charAt(1) == '\"'){
+                                    cellVal = cellVal.replace("\"" , "");
+                                }
+
+
+                                if(cellVal != ""){
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length()-1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                                j++;
+                            }
+
+                            if((value.getCell(j) != null) && (key.getCell(j) != null)){
+                                j++;
+                                continue;
+                            }
+
+                        }
+
+
+                    }
+
+
+                }
+
+                if(i == 6){
+                    int j = 0;
+
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 3 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("rule_line_list")) {
+                        JsonArray ruleLineListArray = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(2).getAsJsonObject().get("rule_line_list").getAsJsonArray();
+
+                        for (int k = 0; k < ruleLineListArray.size(); k++) {
+
+                            while ((value.getCell(j) == null || value.getCell(j).toString() == "") && (key.getCell(j) != null)) {
+
+                                String cellVal = "";
+                                if (ruleLineListArray.get(k).getAsJsonObject().has(key.getCell(j).toString())) {
+                                    cellVal = ruleLineListArray.get(k).getAsJsonObject().get((key.getCell(j).toString())).toString();
+                                }
+
+
+                                if (cellVal != "" && cellVal.charAt(1) == '\"') {
+                                    cellVal = cellVal.replace("\"", "");
+                                }
+
+                                System.out.println(cellVal);
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                                j++;
+                            }
+
+                            if ((value.getCell(j) != null) && (key.getCell(j) != null)) {
+                                System.out.println(key.getCell(j));
+                                j++;
+                                continue;
+                            }
+
+                        }
+                    }
+                }
+
+
+
+                if(i == 7){
+                    int j = 0;
+
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 4 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("rule_line_list")) {
+                        JsonArray ruleLineListArray = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(3).getAsJsonObject().get("rule_line_list").getAsJsonArray();
+
+                        for (int k = 0; k < ruleLineListArray.size(); k++) {
+
+                            while ((value.getCell(j) == null || value.getCell(j).toString() == "") && (key.getCell(j) != null)) {
+
+                                String cellVal = "";
+                                if (ruleLineListArray.get(k).getAsJsonObject().has(key.getCell(j).toString())) {
+                                    cellVal = ruleLineListArray.get(k).getAsJsonObject().get((key.getCell(j).toString())).toString();
+                                }
+
+                                if (cellVal != "" && cellVal.charAt(1) == '\"') {
+                                    cellVal = cellVal.replace("\"", "");
+                                }
+
+                                System.out.println(cellVal);
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                                j++;
+                            }
+
+                            if ((value.getCell(j) != null) && (key.getCell(j) != null)) {
+                                System.out.println(key.getCell(j));
+                                j++;
+                                continue;
+                            }
+
+                        }
+                    }
+                }
+
+                if(i == 8){
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 1 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("allocation_detail_list")) {
+                        JsonObject allocationDetailList = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().get("allocation_detail_list").getAsJsonArray().get(0).getAsJsonObject();
+
+
+                        for (int j = 0; j < key.getPhysicalNumberOfCells(); j++) {
+                            if (value.getCell(j) == null || value.getCell(j).toString() == "") {
+                                String cellVal = allocationDetailList.get((key.getCell(j).toString())).toString();
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                if(i == 9){
+
+                    if(jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 2 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("allocation_detail_list")) {
+                        JsonObject allocationDetailList = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(1).getAsJsonObject().get("allocation_detail_list").getAsJsonArray().get(0).getAsJsonObject();
+                        for (int j = 0; j < key.getPhysicalNumberOfCells(); j++) {
+                            if (value.getCell(j) == null || value.getCell(j).toString() == "") {
+                                String cellVal = allocationDetailList.get((key.getCell(j).toString())).toString();
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+
+                if(i == 10) {
+
+                    if (jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 3 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("allocation_detail_list")) {
+                        JsonObject allocationDetailList = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(2).getAsJsonObject().get("allocation_detail_list").getAsJsonArray().get(0).getAsJsonObject();
+
+                        for (int j = 0; j < key.getPhysicalNumberOfCells(); j++) {
+                            if (value.getCell(j) == null || value.getCell(j).toString() == "") {
+                                String cellVal = allocationDetailList.get((key.getCell(j).toString())).toString();
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                if(i == 11) {
+
+                    if (jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").size() >= 4 && jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(0).getAsJsonObject().has("allocation_detail_list")) {
+                        JsonObject allocationDetailList = jsonObject.getAsJsonObject(jsonObject.keySet().toArray()[0].toString()).getAsJsonArray("rule_list").get(3).getAsJsonObject().get("allocation_detail_list").getAsJsonArray().get(0).getAsJsonObject();
+                        for (int j = 0; j < key.getPhysicalNumberOfCells(); j++) {
+                            if (value.getCell(j) == null || value.getCell(j).toString() == "") {
+                                String cellVal = allocationDetailList.get((key.getCell(j).toString())).toString();
+
+                                if (cellVal != "") {
+                                    value.createCell(j).setCellValue(cellVal.substring(1, cellVal.length() - 1));
+                                    value.getCell(j).setCellStyle(style);
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+
+
+
+            FileOutputStream out = new FileOutputStream(new File("rulesStorage\\master_rulesTESTING.xlsx"));
+            workBook.write(out);
+            out.close();
+
+
+
+            System.out.println("We got here:  " + headerInt);
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
+    }
+
+    @PostMapping("/rules/deleteRule")
+    public void deleteRule (@RequestParam("ruleName") String ruleName){
+
+
+
+        File dir = new File("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                StringBuilder sb = new StringBuilder(child.getName());
+
+                if(child.getName().contains("∕")){
+                    sb.setCharAt(child.getName().indexOf("∕") , '/');
+                }
+
+                String childName = sb.toString();
+                String tempRuleName = ruleName + ".json";
+
+
+                if(childName.equals(tempRuleName)){
+                    System.out.println(childName);
+                    System.out.println(ruleName);
+
+                    Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s", child.getName()));
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        } else {
+            System.out.println("Dir does not exist");
+        }
+
+        try {
+            FileInputStream fis = new FileInputStream("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
+            XSSFWorkbook workBook = new XSSFWorkbook(fis);
+            fis.close();
+            XSSFSheet worksheet = workBook.getSheetAt(0);
+            int rowInt = -1;
+            int tempInt = 0;
+
+            while(worksheet.getRow(tempInt) != null){
+                XSSFRow key = worksheet.getRow(tempInt);
+                System.out.println(tempInt + "                   " + worksheet.getPhysicalNumberOfRows());
+
+                if(key.getCell(0) != null && key.getCell(0).toString().equals(ruleName)){
+                    rowInt = tempInt;
+                }
+            }
+
+            for(int i = 0; i < workBook.getNumberOfSheets()-1;i++){
+                XSSFSheet tempWorksheet = workBook.getSheetAt(i);
+                XSSFRow tempRow = tempWorksheet.getRow(rowInt);
+                System.out.println(rowInt);
+                System.out.println(rowInt+1);
+                System.out.println(rowInt+2);
+                tempWorksheet.removeRow(tempWorksheet.getRow(rowInt-1));
+                tempWorksheet.removeRow(tempWorksheet.getRow(rowInt));
+                tempWorksheet.removeRow(tempWorksheet.getRow(rowInt+1));
+                tempWorksheet.shiftRows(rowInt+2 , tempWorksheet.getPhysicalNumberOfRows() , -3);
+            }
+
+            FileOutputStream out = new FileOutputStream(new File("rulesStorage\\master_rulesTESTING.xlsx"));
+            workBook.write(out);
+            out.close();
+
+
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     public void EG_write_to_JSON(List<JsonObject> dataList, String name, String fileKey, int counter) {
