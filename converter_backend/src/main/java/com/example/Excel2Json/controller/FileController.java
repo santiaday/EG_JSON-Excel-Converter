@@ -67,7 +67,7 @@ public class FileController {
         String fileNameWOExt = fileName.substring(0, fileName.lastIndexOf('.'));
 
         if(updateStorage == true){
-           return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey, true);
+            return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey, true);
         }else if(updateStorage == false){
             return EG_excel_to_multiple_JSON(file, fileNameWOExt, fileKey, false);
         }
@@ -234,12 +234,15 @@ public class FileController {
             JsonObject tempJsonObject = new JsonObject();
 
             while (j < numRows) {
-                dataList.add(write_to_json_object(data, i, j, jsonObject, 0));
+                jsonObject = write_to_json_object(data, i, j, jsonObject, 0);
                 tempDataList.add(write_to_json_object(data, i, j, tempJsonObject, 0));
+                System.out.println(jsonObject);
+
 
                 if(updateStorage){
                     update_rules_storage(tempJsonObject , tempDataList.get(0).keySet().toArray()[0].toString(), false);
                 }
+
 
                 tempJsonObject = new JsonObject();
                 tempDataList.clear();
@@ -251,11 +254,16 @@ public class FileController {
             }
 
 
+
+            dataList.add(jsonObject);
+            EG_write_rule_to_JSON(dataList, name, fileKey, 0);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        EG_write_rule_to_JSON(dataList, name, fileKey, 0);
+
 
         return "Success";
     }
@@ -279,11 +287,11 @@ public class FileController {
 
                 int jIndex = 0;
 
-                Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
+                Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                 boolean exists = Files.exists(path);
                 if (!exists) {
                     write_to_excel_spreadsheet(jsonObject, true);
-                    FileWriter file = new FileWriter("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\" + ruleName + ".json");
+                    FileWriter file = new FileWriter("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\" + ruleName + ".json");
                     file.write(gson.toJson(jsonObject));
                     file.close();
                 } else {
@@ -292,7 +300,7 @@ public class FileController {
                         JsonObject temp = new JsonObject();
                         temp = jsonObject;
                         write_to_excel_spreadsheet(jsonObject, false);
-                        FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
+                        FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s.json", ruleName));
                         file.write(gson.toJson(temp));
                         file.close();
                     } else {
@@ -311,7 +319,7 @@ public class FileController {
     @GetMapping("/rules/countRules")
     public List<String> countRules(){
 
-        File dir = new File("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
+        File dir = new File("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
         File[] directoryListing = dir.listFiles();
 
         List<String> ruleNames = new ArrayList<>();
@@ -463,7 +471,7 @@ public class FileController {
     public void write_to_excel_spreadsheet(JsonObject jsonObject, boolean newRule){
 
         try{
-            FileInputStream fis = new FileInputStream("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
+            FileInputStream fis = new FileInputStream("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
             XSSFWorkbook workBook = new XSSFWorkbook(fis);
             fis.close();
             XSSFSheet worksheet = workBook.getSheetAt(0);
@@ -529,13 +537,13 @@ public class FileController {
                             j++;
                         }
 
-                            if(value.getCell(j).toString() != "" || value.getCell(j) != null){
-                                j=j+3;
-                                continue;
-                            }
+                        if(value.getCell(j).toString() != "" || value.getCell(j) != null){
+                            j=j+3;
+                            continue;
+                        }
 
 
-                            }
+                    }
 
 
                 }
@@ -810,7 +818,7 @@ public class FileController {
 
 
 
-        File dir = new File("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
+        File dir = new File("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage");
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             for (File child : directoryListing) {
@@ -828,7 +836,7 @@ public class FileController {
                     System.out.println(childName);
                     System.out.println(ruleName);
 
-                    Path path = Paths.get(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s", child.getName()));
+                    Path path = Paths.get(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\%s", child.getName()));
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
@@ -841,7 +849,7 @@ public class FileController {
         }
 
         try {
-            FileInputStream fis = new FileInputStream("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
+            FileInputStream fis = new FileInputStream("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx");
             XSSFWorkbook workBook = new XSSFWorkbook(fis);
             fis.close();
             XSSFSheet worksheet = workBook.getSheetAt(0);
@@ -855,6 +863,8 @@ public class FileController {
                 if(key.getCell(0) != null && key.getCell(0).toString().equals(ruleName)){
                     rowInt = tempInt;
                 }
+                
+                tempInt++;
             }
 
             for(int i = 0; i < workBook.getNumberOfSheets()-1;i++){
@@ -866,10 +876,10 @@ public class FileController {
                 tempWorksheet.removeRow(tempWorksheet.getRow(rowInt-1));
                 tempWorksheet.removeRow(tempWorksheet.getRow(rowInt));
                 tempWorksheet.removeRow(tempWorksheet.getRow(rowInt+1));
-                tempWorksheet.shiftRows(rowInt+2 , tempWorksheet.getPhysicalNumberOfRows() , -3);
+                tempWorksheet.shiftRows(rowInt+2 , tempWorksheet.getLastRowNum() , -3);
             }
 
-            FileOutputStream out = new FileOutputStream(new File("rulesStorage\\master_rulesTESTING.xlsx"));
+            FileOutputStream out = new FileOutputStream(new File("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\rulesStorage\\master_rulesTESTING.xlsx"));
             workBook.write(out);
             out.close();
 
@@ -884,7 +894,7 @@ public class FileController {
     public void EG_write_to_JSON(List<JsonObject> dataList, String name, String fileKey, int counter) {
         Gson gson = new Gson();
         try {
-            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
@@ -903,7 +913,7 @@ public class FileController {
         try {
 
 
-            FileWriter file = new FileWriter(String.format("C:\\Users\\santi\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
+            FileWriter file = new FileWriter(String.format("C:\\Users\\saaday\\Documents\\EG_JSON-Excel-Converter\\converter_backend\\springBootUploads\\%s.json",
                     multiple ? fileKey + "converted-" + name + "-" + counter : fileKey + "converted-" + name));
             file.write(gson.toJson(dataList));
             file.close();
