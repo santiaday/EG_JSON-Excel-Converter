@@ -1,0 +1,25 @@
+.wrapper {
+    width: "20px";
+  }
+  
+  .container {
+    background-color: pink;
+    float: "right";
+    width: "20px";
+  }
+
+  .container {
+    background-color: pink;
+    float: "left";
+    width: "20px";
+  }
+  
+  .barCompleted {
+    background-color: black;
+    width: 80%;
+  }
+  
+  .label {
+    font-size: 20px;
+    color: green;
+  }

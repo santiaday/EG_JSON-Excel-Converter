@@ -1,0 +1,39 @@
+.onDragOver {
+    height: 100%; 
+    width: 100%;
+    cursor: pointer; 
+    pointer-events: none;
+    background:rgba(128,128,128, 0.1);
+    animation: changeBackgroundColor 0.15s ease-in-out forwards;
+}
+
+.onDragOut {
+    height: 100%;
+    animation: revertBackgroundColor 0.15s ease-in-out forwards;
+}
+
+@keyframes changeBackgroundColor {
+    from {
+        background: rgba(128,128,128, 0.1);
+    } to {
+        background: rgba(128,128,128, 0.3);
+    }
+}
+
+@keyframes revertBackgroundColor {
+    from {
+        background: rgba(128,128,128, 0.3);
+    } to {
+        background: rgba(128,128,128, 0.1);
+    }
+}
+
+.body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
